@@ -1,20 +1,20 @@
-import streamlit as st
-from ultralytics import YOLO
-from PIL import Image
-import numpy as np
 import time
+
+import numpy as np
+import streamlit as st
+from PIL import Image
+
+from ultralytics import YOLO
 
 # =========================
 # PAGE CONFIG
 # =========================
-st.set_page_config(
-    page_title="Underwater Object Detection",
-    layout="wide"
-)
+st.set_page_config(page_title="Underwater Object Detection", layout="wide")
 # =========================
 # GLOBAL UI STYLING (FIGMA-LIKE)
 # =========================
-st.markdown("""
+st.markdown(
+    """
 <style>
 /* Page background */
 .stApp {
@@ -340,7 +340,11 @@ h2, h3 {
     color: #111827 !important;
 }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
+
+
 # =========================
 # LOAD MODELS (CACHE)
 # =========================
@@ -350,34 +354,32 @@ def load_models():
     proposed = YOLO("models/proposed_best.pt")
     return baseline, proposed
 
+
 baseline_model, proposed_model = load_models()
+
 
 # =========================
 # MODEL METRICS (FROM VALIDATION)
 # =========================
 def get_model_metrics(model):
-    """Extract validation metrics from model checkpoint if available"""
-    metrics = {
-        'precision': 0.0,
-        'recall': 0.0,
-        'mAP50': 0.0,
-        'mAP50-95': 0.0
-    }
-    
+    """Extract validation metrics from model checkpoint if available."""
+    metrics = {"precision": 0.0, "recall": 0.0, "mAP50": 0.0, "mAP50-95": 0.0}
+
     try:
         # Try to get metrics from model checkpoint
         ckpt = model.ckpt
-        if ckpt and 'metrics' in ckpt:
+        if ckpt and "metrics" in ckpt:
             # Common keys in YOLO checkpoints
-            if hasattr(ckpt['metrics'], 'box'):
-                metrics['precision'] = float(ckpt['metrics'].box.p) if hasattr(ckpt['metrics'].box, 'p') else 0.0
-                metrics['recall'] = float(ckpt['metrics'].box.r) if hasattr(ckpt['metrics'].box, 'r') else 0.0
-                metrics['mAP50'] = float(ckpt['metrics'].box.map50) if hasattr(ckpt['metrics'].box, 'map50') else 0.0
-                metrics['mAP50-95'] = float(ckpt['metrics'].box.map) if hasattr(ckpt['metrics'].box, 'map') else 0.0
+            if hasattr(ckpt["metrics"], "box"):
+                metrics["precision"] = float(ckpt["metrics"].box.p) if hasattr(ckpt["metrics"].box, "p") else 0.0
+                metrics["recall"] = float(ckpt["metrics"].box.r) if hasattr(ckpt["metrics"].box, "r") else 0.0
+                metrics["mAP50"] = float(ckpt["metrics"].box.map50) if hasattr(ckpt["metrics"].box, "map50") else 0.0
+                metrics["mAP50-95"] = float(ckpt["metrics"].box.map) if hasattr(ckpt["metrics"].box, "map") else 0.0
     except:
         pass
-    
+
     return metrics
+
 
 # Try to load metrics from models
 baseline_metrics = get_model_metrics(baseline_model)
@@ -385,21 +387,11 @@ proposed_metrics = get_model_metrics(proposed_model)
 
 # If metrics are not available in checkpoint, set them manually here
 # You can update these values with your actual validation results
-if baseline_metrics['precision'] == 0.0:
-    baseline_metrics = {
-        'precision': 0.82,
-        'recall': 0.78,
-        'mAP50': 0.80,
-        'mAP50-95': 0.65
-    }
+if baseline_metrics["precision"] == 0.0:
+    baseline_metrics = {"precision": 0.82, "recall": 0.78, "mAP50": 0.80, "mAP50-95": 0.65}
 
-if proposed_metrics['precision'] == 0.0:
-    proposed_metrics = {
-        'precision': 0.89,
-        'recall': 0.85,
-        'mAP50': 0.87,
-        'mAP50-95': 0.72
-    }
+if proposed_metrics["precision"] == 0.0:
+    proposed_metrics = {"precision": 0.89, "recall": 0.85, "mAP50": 0.87, "mAP50-95": 0.72}
 
 # =========================
 # STICKY NAVBAR (always visible)
@@ -409,7 +401,7 @@ st.markdown('<div class="navbar">Underwater Object Detection Prototype</div>', u
 # =========================
 # IMAGE UPLOAD
 # =========================
-uploaded_file = st.file_uploader("", type=["jpg","jpeg","png"], label_visibility="collapsed")
+uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
 
 # Run Detection button always rendered (CSS pins it to navbar top-right)
 # Disabled until a file is uploaded
@@ -419,7 +411,6 @@ run_detection = st.button("Run Detection", disabled=not uploaded_file)
 # IF IMAGE UPLOADED
 # =========================
 if uploaded_file:
-
     image = Image.open(uploaded_file).convert("RGB")
     img_array = np.array(image)
 
@@ -433,7 +424,6 @@ if uploaded_file:
 # RUN DETECTION ON BUTTON CLICK
 # =========================
 if uploaded_file and run_detection:
-
     st.info("Running detection...")
 
     # =========================
@@ -460,29 +450,29 @@ if uploaded_file and run_detection:
     # EXTRACT ALL RESULTS (GROUPED BY CLASS WITH AVERAGE)
     # =========================
     def get_all_detections(result):
-        """Get unique classes with their average confidence"""
+        """Get unique classes with their average confidence."""
         if len(result.boxes.cls) == 0:
             return []
-        
+
         # Dictionary to store all confidences for each class
         class_confidences = {}
-        
+
         for i in range(len(result.boxes.cls)):
             cls_id = int(result.boxes.cls[i])
             conf = float(result.boxes.conf[i])
             # Use the model's actual class names from the result
             class_name = result.names[cls_id]
-            
+
             if class_name not in class_confidences:
                 class_confidences[class_name] = []
             class_confidences[class_name].append(conf)
-        
+
         # Calculate average confidence for each class and convert to list
         detections = []
         for class_name, confidences in class_confidences.items():
             avg_conf = np.mean(confidences)
             detections.append((class_name, avg_conf))
-        
+
         # Sort by average confidence descending
         detections.sort(key=lambda x: x[1], reverse=True)
         return detections
@@ -495,7 +485,7 @@ if uploaded_file and run_detection:
     # =========================
     baseline_count = len(baseline_result.boxes.cls)
     proposed_count = len(proposed_result.boxes.cls)
-    
+
     # Calculate detection accuracy (average confidence)
     baseline_accuracy = np.mean([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
     proposed_accuracy = np.mean([conf for _, conf in proposed_detections]) * 100 if proposed_detections else 0
@@ -509,71 +499,119 @@ if uploaded_file and run_detection:
     # PROPOSED MODEL PANEL
     # =========================
     with col1:
-        st.markdown('''
+        st.markdown(
+            """
         <div class="card proposed">
             <div class="card-title">Proposed Model <span style="color:#2563eb;font-size:12px;">Enhanced</span></div>
         </div>
-        ''', unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
         st.image(proposed_img, use_container_width=True)
 
-        st.markdown('<div class="metric-box">Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="metric-box">Detection Accuracy<br><b>{proposed_accuracy:.1f}%</b></div>',
+            unsafe_allow_html=True,
+        )
 
-        st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Top Classification Result</p>', unsafe_allow_html=True)
-        
+        st.markdown(
+            '<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Top Classification Result</p>',
+            unsafe_allow_html=True,
+        )
+
         if proposed_detections:
             top_class, top_conf = proposed_detections[0]
-            st.markdown(f'<div class="metric-box">Top Classification<br><b>{top_class}</b> <span style="float:right">{top_conf*100:.1f}%</span></div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="metric-box">Top Classification<br><b>{top_class}</b> <span style="float:right">{top_conf * 100:.1f}%</span></div>',
+                unsafe_allow_html=True,
+            )
 
             with st.expander("See More"):
                 for cls, conf in proposed_detections[1:]:
-                    st.write(f"{cls} — {conf*100:.1f}%")
+                    st.write(f"{cls} — {conf * 100:.1f}%")
 
         with st.expander("Evaluation Metrics"):
             m1, m2 = st.columns(2)
             with m1:
-                st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.1f}%</b></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.1f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"] * 100:.1f}%</b></div>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown(
+                    f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"] * 100:.1f}%</b></div>',
+                    unsafe_allow_html=True,
+                )
             with m2:
-                st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.1f}%</b></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.1f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"] * 100:.1f}%</b></div>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown(
+                    f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"] * 100:.1f}%</b></div>',
+                    unsafe_allow_html=True,
+                )
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # =========================
     # BASELINE MODEL PANEL
     # =========================
     with col2:
-        st.markdown('''
+        st.markdown(
+            """
         <div class="card">
             <div class="card-title">Baseline Model</div>
         </div>
-        ''', unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
         st.image(baseline_img, use_container_width=True)
 
-        st.markdown('<div class="metric-box">Detection Accuracy<br><b>{:.1f}%</b></div>'.format(baseline_accuracy), unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="metric-box">Detection Accuracy<br><b>{baseline_accuracy:.1f}%</b></div>',
+            unsafe_allow_html=True,
+        )
 
-        st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Top Classification Result</p>', unsafe_allow_html=True)
-        
+        st.markdown(
+            '<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Top Classification Result</p>',
+            unsafe_allow_html=True,
+        )
+
         if baseline_detections:
             top_class, top_conf = baseline_detections[0]
-            st.markdown(f'<div class="metric-box">Top Classification<br><b>{top_class}</b> <span style="float:right">{top_conf*100:.1f}%</span></div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="metric-box">Top Classification<br><b>{top_class}</b> <span style="float:right">{top_conf * 100:.1f}%</span></div>',
+                unsafe_allow_html=True,
+            )
 
             with st.expander("See More"):
                 for cls, conf in baseline_detections[1:]:
-                    st.write(f"{cls} — {conf*100:.1f}%")
+                    st.write(f"{cls} — {conf * 100:.1f}%")
 
         with st.expander("Evaluation Metrics"):
             m1, m2 = st.columns(2)
             with m1:
-                st.markdown(f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"]*100:.1f}%</b></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"]*100:.1f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"] * 100:.1f}%</b></div>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown(
+                    f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"] * 100:.1f}%</b></div>',
+                    unsafe_allow_html=True,
+                )
             with m2:
-                st.markdown(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.1f}%</b></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.1f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"] * 100:.1f}%</b></div>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown(
+                    f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"] * 100:.1f}%</b></div>',
+                    unsafe_allow_html=True,
+                )
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # =========================
     # COMPARISON
@@ -583,23 +621,13 @@ if uploaded_file and run_detection:
     st.subheader("Model Comparison")
 
     comp_col1, comp_col2, comp_col3 = st.columns(3)
-    
+
     with comp_col1:
         accuracy_improvement = proposed_accuracy - baseline_accuracy
-        st.metric(
-            label="Accuracy Improvement",
-            value=f"{proposed_accuracy:.2f}%",
-            delta=f"{accuracy_improvement:.2f}%"
-        )
-    
+        st.metric(label="Accuracy Improvement", value=f"{proposed_accuracy:.2f}%", delta=f"{accuracy_improvement:.2f}%")
+
     with comp_col2:
-        st.metric(
-            label="Proposed Detections",
-            value=proposed_count
-        )
-    
+        st.metric(label="Proposed Detections", value=proposed_count)
+
     with comp_col3:
-        st.metric(
-            label="Baseline Detections",
-            value=baseline_count
-        )
+        st.metric(label="Baseline Detections", value=baseline_count)

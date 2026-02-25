@@ -27,6 +27,7 @@ from ultralytics.nn.modules import (
     SPPF,
     A2C2f,
     AConv,
+    AdaptiveFeatureFusion,
     ADown,
     Bottleneck,
     BottleneckCSP,
@@ -44,6 +45,7 @@ from ultralytics.nn.modules import (
     Conv,
     Conv2,
     ConvTranspose,
+    DenoisingBranch,
     Detect,
     DWConv,
     DWConvTranspose2d,
@@ -66,15 +68,13 @@ from ultralytics.nn.modules import (
     SCDown,
     Segment,
     Segment26,
+    StandardBranch,
     TorchVision,
     WorldDetect,
     YOLOEDetect,
     YOLOESegment,
     YOLOESegment26,
     v10Detect,
-    StandardBranch,
-    DenoisingBranch,
-    AdaptiveFeatureFusion,
 )
 from ultralytics.utils import DEFAULT_CFG_DICT, LOGGER, YAML, colorstr, emojis
 from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
