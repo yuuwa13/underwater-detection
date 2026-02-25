@@ -27,6 +27,7 @@ __all__ = (
     "SPPF",
     "AConv",
     "ADown",
+    "AdaptiveFeatureFusion",
     "Attention",
     "BNContrastiveHead",
     "Bottleneck",
@@ -41,6 +42,7 @@ __all__ = (
     "CBFuse",
     "CBLinear",
     "ContrastiveHead",
+    "DenoisingBranch",
     "GhostBottleneck",
     "HGBlock",
     "HGStem",
@@ -51,10 +53,8 @@ __all__ = (
     "RepVGGDW",
     "ResNetLayer",
     "SCDown",
-    "TorchVision",
     "StandardBranch",
-    "DenoisingBranch",
-    "AdaptiveFeatureFusion",
+    "TorchVision",
 )
 
 
@@ -2069,6 +2069,7 @@ class RealNVP(nn.Module):
         z, log_det = self.backward_p(x)
         return self.prior.log_prob(z) + log_det
 
+
 class StandardBranch(nn.Module):
     def __init__(self, c1, c2, *args):
         super().__init__()
@@ -2077,7 +2078,6 @@ class StandardBranch(nn.Module):
         s = args[1] if len(args) > 1 else 2
         p = args[2] if len(args) > 2 else 1
         g = args[3] if len(args) > 3 else 1
-
 
         self.conv1 = Conv(c1, c2, k, s, p, g)
         self.conv2 = Conv(c2, c2, 3, 1, p, g)
@@ -2139,7 +2139,7 @@ class AdaptiveFeatureFusion(nn.Module):
             nn.Conv2d(c, hidden_ch, 1, bias=True),
             nn.ReLU(inplace=True),
             nn.Conv2d(hidden_ch, c, 1, bias=True),
-            nn.Sigmoid()
+            nn.Sigmoid(),
         )
 
     def forward(self, x):
