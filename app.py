@@ -569,11 +569,11 @@ if uploaded_file and run_detection:
         with st.expander("Evaluation Metrics"):
             m1, m2 = st.columns(2)
             with m1:
-                st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.1f}%</b></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.1f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.2f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.2f}%</b></div>', unsafe_allow_html=True)
             with m2:
-                st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.1f}%</b></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.1f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.2f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.2f}%</b></div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -604,11 +604,11 @@ if uploaded_file and run_detection:
         with st.expander("Evaluation Metrics"):
             m1, m2 = st.columns(2)
             with m1:
-                st.markdown(f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"]*100:.1f}%</b></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"]*100:.1f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"]*100:.2f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"]*100:.2f}%</b></div>', unsafe_allow_html=True)
             with m2:
-                st.markdown(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.1f}%</b></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.1f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.2f}%</b></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.2f}%</b></div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
