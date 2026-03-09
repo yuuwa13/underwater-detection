@@ -456,6 +456,9 @@ if uploaded_file:
     [data-testid="stFileUploaderDropzone"] button {{
         display: none !important;
     }}
+    [data-testid="stFileUploaderFile"] {{
+        display: none !important;
+    }}
     </style>
     <div style="border: 2px dashed #2563eb; border-radius: 16px; background: white; padding: 24px; text-align: center; margin-bottom: 8px;">
         <img src="data:image/png;base64,{b64}" style="max-width: 100%; max-height: 420px; border-radius: 10px; object-fit: contain;" />
