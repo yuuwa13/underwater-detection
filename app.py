@@ -3,6 +3,8 @@ from ultralytics import YOLO
 from PIL import Image
 import numpy as np
 import time
+import base64
+from io import BytesIO
 
 # =========================
 # PAGE CONFIG
@@ -409,7 +411,9 @@ st.markdown('<div class="navbar">Underwater Object Detection Prototype</div>', u
 # =========================
 # IMAGE UPLOAD
 # =========================
-uploaded_file = st.file_uploader("", type=["jpg","jpeg","png"], label_visibility="collapsed")
+preview_slot = st.empty()
+
+uploaded_file = st.file_uploader("Upload Image", type=["jpg","jpeg","png"], label_visibility="collapsed")
 
 # Run Detection button always rendered (CSS pins it to navbar top-right)
 # Disabled until a file is uploaded
@@ -423,11 +427,41 @@ if uploaded_file:
     image = Image.open(uploaded_file).convert("RGB")
     img_array = np.array(image)
 
-    # Display centered uploaded image
-    st.subheader("Uploaded Image")
-    col_space1, col_img, col_space2 = st.columns([1, 2, 1])
-    with col_img:
-        st.image(image, use_container_width=True)
+    # Encode image as base64 for inline HTML preview
+    buf = BytesIO()
+    image.save(buf, format="PNG")
+    b64 = base64.b64encode(buf.getvalue()).decode()
+
+    # Show preview ABOVE the file uploader (in the reserved slot)
+    # Make the dropzone compact so the user can still click it to replace the image
+    preview_slot.markdown(f"""
+    <style>
+    [data-testid="stFileUploaderDropzone"] {{
+        padding: 10px 20px !important;
+        min-height: 0 !important;
+        border-radius: 10px !important;
+    }}
+    [data-testid="stFileUploaderDropzoneInstructions"] > div::before {{
+        display: none !important;
+    }}
+    [data-testid="stFileUploaderDropzoneInstructions"] > div::after {{
+        content: "Click to upload a different image" !important;
+        font-size: 13px !important;
+        color: #6b7280 !important;
+        font-weight: 400 !important;
+    }}
+    [data-testid="stFileUploaderDropzoneInstructions"]::after {{
+        display: none !important;
+    }}
+    [data-testid="stFileUploaderDropzone"] button {{
+        display: none !important;
+    }}
+    </style>
+    <div style="border: 2px dashed #2563eb; border-radius: 16px; background: white; padding: 24px; text-align: center; margin-bottom: 8px;">
+        <img src="data:image/png;base64,{b64}" style="max-width: 100%; max-height: 420px; border-radius: 10px; object-fit: contain;" />
+        <p style="font-size: 13px; color: #6b7280; margin-top: 10px; margin-bottom: 0;">{uploaded_file.name}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # =========================
 # RUN DETECTION ON BUTTON CLICK
