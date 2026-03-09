@@ -389,10 +389,10 @@ proposed_metrics = get_model_metrics(proposed_model)
 # You can update these values with your actual validation results
 if baseline_metrics['precision'] == 0.0:
     baseline_metrics = {
-        'precision': 0.813,
-        'recall': 0.728,
-        'mAP50': 0.81,
-        'mAP50-95': 0.559
+        'precision': 0.8205,
+        'recall': 0.7260,
+        'mAP50': 0.8137,
+        'mAP50-95': 0.5639
     }
 
 if proposed_metrics['precision'] == 0.0:
