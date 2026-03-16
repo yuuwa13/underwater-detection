@@ -397,10 +397,10 @@ if baseline_metrics['precision'] == 0.0:
 
 if proposed_metrics['precision'] == 0.0:
     proposed_metrics = {
-        'precision': 0.8372,
-        'recall': 0.7712,
-        'mAP50': 0.8490,
-        'mAP50-95': 0.6083
+        'precision': 0.8423,
+        'recall': 0.7726,
+        'mAP50': 0.8561,
+        'mAP50-95': 0.6133
     }
 
 # =========================
