@@ -587,9 +587,10 @@ if uploaded_file and run_detection:
 
         st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
         
-        if proposed_detections:
-            for cls, conf in proposed_detections:
-                st.write(f"{cls} — {conf*100:.1f}%")
+        with st.expander("See More"):
+            if proposed_detections:
+                for cls, conf in proposed_detections:
+                    st.write(f"{cls} — {conf*100:.1f}%")
 
         with st.expander("Evaluation Metrics"):
             m1, m2 = st.columns(2)
@@ -618,9 +619,10 @@ if uploaded_file and run_detection:
 
         st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
         
-        if baseline_detections:
-            for cls, conf in baseline_detections:
-                st.write(f"{cls} — {conf*100:.1f}%")
+        with st.expander("See More"):
+            if baseline_detections:
+                for cls, conf in baseline_detections:
+                    st.write(f"{cls} — {conf*100:.1f}%")
 
         with st.expander("Evaluation Metrics"):
             m1, m2 = st.columns(2)
