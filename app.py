@@ -533,33 +533,23 @@ if uploaded_file and run_detection:
     proposed_img = proposed_result.plot()
 
     # =========================
-    # EXTRACT ALL RESULTS (GROUPED BY CLASS WITH AVERAGE)
+    # EXTRACT ALL RESULTS (PER BOUNDING BOX)
     # =========================
     def get_all_detections(result):
-        """Get unique classes with their average confidence"""
+        """Get each detected bounding box with its confidence."""
         if len(result.boxes.cls) == 0:
             return []
-        
-        # Dictionary to store all confidences for each class
-        class_confidences = {}
-        
+
+        detections = []
         for i in range(len(result.boxes.cls)):
             cls_id = int(result.boxes.cls[i])
             conf = float(result.boxes.conf[i])
-            # Use the model's actual class names from the result
             class_name = result.names[cls_id]
-            
-            if class_name not in class_confidences:
-                class_confidences[class_name] = []
-            class_confidences[class_name].append(conf)
-        
-        # Calculate average confidence for each class and convert to list
-        detections = []
-        for class_name, confidences in class_confidences.items():
-            avg_conf = np.mean(confidences)
-            detections.append((class_name, avg_conf))
-        
-        # Sort by average confidence descending
+
+            # Keep each bounding box as an individual classification result.
+            detections.append((class_name, conf))
+
+        # Sort by confidence descending.
         detections.sort(key=lambda x: x[1], reverse=True)
         return detections
 
@@ -572,9 +562,9 @@ if uploaded_file and run_detection:
     baseline_count = len(baseline_result.boxes.cls)
     proposed_count = len(proposed_result.boxes.cls)
     
-    # Calculate detection accuracy (average confidence)
-    baseline_accuracy = np.mean([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
-    proposed_accuracy = np.mean([conf for _, conf in proposed_detections]) * 100 if proposed_detections else 0
+    # Detection accuracy is the highest bounding-box confidence.
+    baseline_accuracy = max([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
+    proposed_accuracy = max([conf for _, conf in proposed_detections]) * 100 if proposed_detections else 0
 
     # =========================
     # LAYOUT
