@@ -591,7 +591,7 @@ if uploaded_file and run_detection:
         </div>
         ''', unsafe_allow_html=True)
 
-        st.image(proposed_img, use_container_width=True)
+        st.image(proposed_img, width=400)
 
         st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
 
@@ -623,7 +623,7 @@ if uploaded_file and run_detection:
         </div>
         ''', unsafe_allow_html=True)
 
-        st.image(baseline_img, use_container_width=True)
+        st.image(baseline_img, width=400)
 
         st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(baseline_accuracy), unsafe_allow_html=True)
 
