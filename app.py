@@ -37,7 +37,7 @@ st.markdown("""
     right: 0;
     z-index: 9999;
     background: #ffffff;
-    padding: 0 6rem;
+    padding: 0 5rem;
     height: 60px;
     display: flex;
     align-items: center;
@@ -63,6 +63,10 @@ section.main > div.block-container {
 }
 
 @media (max-width: 1200px) {
+    .navbar {
+        padding: 0 2rem;
+    }
+
     [data-testid="stMainBlockContainer"],
     .main .block-container,
     section.main > div.block-container {
@@ -73,6 +77,10 @@ section.main > div.block-container {
 }
 
 @media (max-width: 768px) {
+    .navbar {
+        padding: 0 1rem;
+    }
+
     [data-testid="stMainBlockContainer"],
     .main .block-container,
     section.main > div.block-container {
@@ -85,7 +93,7 @@ section.main > div.block-container {
 .stButton > button {
     position: fixed !important;
     top: 10px !important;
-    right: 6rem !important;
+    right: 5rem !important;
     z-index: 10000 !important;
     background: #374151 !important;
     color: white !important;
@@ -111,6 +119,18 @@ section.main > div.block-container {
     background: #e5e7eb !important;
     color: #9ca3af !important;
     cursor: not-allowed !important;
+}
+
+@media (max-width: 1200px) {
+    .stButton > button {
+        right: 2rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .stButton > button {
+        right: 1rem !important;
+    }
 }
 
 /* Upload box */
