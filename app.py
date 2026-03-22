@@ -56,9 +56,29 @@ st.markdown("""
 [data-testid="stMainBlockContainer"],
 .main .block-container,
 section.main > div.block-container {
-    padding-left: 6rem !important;
-    padding-right: 6rem !important;
-    max-width: 100% !important;
+    padding-left: 5rem !important;
+    padding-right: 5rem !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+}
+
+@media (max-width: 1200px) {
+    [data-testid="stMainBlockContainer"],
+    .main .block-container,
+    section.main > div.block-container {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    [data-testid="stMainBlockContainer"],
+    .main .block-container,
+    section.main > div.block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
 }
 
 /* Run Detection button - fixed top right inside navbar */
@@ -579,7 +599,7 @@ if uploaded_file and run_detection:
     # =========================
     # LAYOUT
     # =========================
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2, gap="large")
 
     # =========================
     # PROPOSED MODEL PANEL
@@ -591,7 +611,7 @@ if uploaded_file and run_detection:
         </div>
         ''', unsafe_allow_html=True)
 
-        st.image(proposed_img, width=400)
+        st.image(proposed_img, use_container_width=True)
 
         st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
 
@@ -623,7 +643,7 @@ if uploaded_file and run_detection:
         </div>
         ''', unsafe_allow_html=True)
 
-        st.image(baseline_img, width=400)
+        st.image(baseline_img, use_container_width=True)
 
         st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(baseline_accuracy), unsafe_allow_html=True)
 
