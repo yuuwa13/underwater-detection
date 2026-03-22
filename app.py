@@ -583,17 +583,13 @@ if uploaded_file and run_detection:
 
         st.image(proposed_img, use_container_width=True)
 
-        st.markdown('<div class="metric-box">Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
+        st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
 
-        st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Top Classification Result</p>', unsafe_allow_html=True)
+        st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
         
         if proposed_detections:
-            top_class, top_conf = proposed_detections[0]
-            st.markdown(f'<div class="metric-box">Top Classification<br><b>{top_class}</b> <span style="float:right">{top_conf*100:.1f}%</span></div>', unsafe_allow_html=True)
-
-            with st.expander("See More"):
-                for cls, conf in proposed_detections[1:]:
-                    st.write(f"{cls} — {conf*100:.1f}%")
+            for cls, conf in proposed_detections:
+                st.write(f"{cls} — {conf*100:.1f}%")
 
         with st.expander("Evaluation Metrics"):
             m1, m2 = st.columns(2)
@@ -618,17 +614,13 @@ if uploaded_file and run_detection:
 
         st.image(baseline_img, use_container_width=True)
 
-        st.markdown('<div class="metric-box">Detection Accuracy<br><b>{:.1f}%</b></div>'.format(baseline_accuracy), unsafe_allow_html=True)
+        st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(baseline_accuracy), unsafe_allow_html=True)
 
-        st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Top Classification Result</p>', unsafe_allow_html=True)
+        st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
         
         if baseline_detections:
-            top_class, top_conf = baseline_detections[0]
-            st.markdown(f'<div class="metric-box">Top Classification<br><b>{top_class}</b> <span style="float:right">{top_conf*100:.1f}%</span></div>', unsafe_allow_html=True)
-
-            with st.expander("See More"):
-                for cls, conf in baseline_detections[1:]:
-                    st.write(f"{cls} — {conf*100:.1f}%")
+            for cls, conf in baseline_detections:
+                st.write(f"{cls} — {conf*100:.1f}%")
 
         with st.expander("Evaluation Metrics"):
             m1, m2 = st.columns(2)
