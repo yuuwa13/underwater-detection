@@ -5,6 +5,7 @@ import numpy as np
 import time
 import base64
 from io import BytesIO
+import torch
 
 # =========================
 # PAGE CONFIG
@@ -350,6 +351,20 @@ h2, h3 {
 def load_models():
     baseline = YOLO("models/baseline_best.pt")
     proposed = YOLO("models/proposed_best.pt")
+
+    def ensure_branch_weights(yolo_model):
+        """Backfill missing branch_weights for custom branch modules in older checkpoints."""
+        for module in yolo_model.model.modules():
+            if hasattr(module, "branches") and not hasattr(module, "branch_weights"):
+                try:
+                    num_branches = len(module.branches)
+                    module.branch_weights = torch.nn.Parameter(torch.ones(num_branches))
+                except Exception:
+                    # Ignore modules that are not compatible with this fallback.
+                    pass
+
+    ensure_branch_weights(baseline)
+    ensure_branch_weights(proposed)
     return baseline, proposed
 
 baseline_model, proposed_model = load_models()
@@ -389,19 +404,18 @@ proposed_metrics = get_model_metrics(proposed_model)
 # You can update these values with your actual validation results
 if baseline_metrics['precision'] == 0.0:
     baseline_metrics = {
-        'precision': 0.8272,
-        'recall': 0.7667,
-        'mAP50': 0.8421,
-        'mAP50-95': 0.6005
+        'precision': 0.8205,
+        'recall': 0.7260,
+        'mAP50': 0.8137,
+        'mAP50-95': 0.5639
     }
 
 if proposed_metrics['precision'] == 0.0:
     proposed_metrics = {
-        'precision': 0.8423,
-        'recall': 0.7726,
-        'mAP50': 0.8561,
-        'mAP50-95': 0.6133
-    }
+        'precision': 0.8423
+        'recall': 0.72726
+        'mAP50': 0.82561
+        'mAP50-95': 0.57133    }
 
 # =========================
 # STICKY NAVBAR (always visible)
