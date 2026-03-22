@@ -565,6 +565,10 @@ if uploaded_file and run_detection:
     # Detection accuracy is the highest bounding-box confidence.
     baseline_accuracy = max([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
     proposed_accuracy = max([conf for _, conf in proposed_detections]) * 100 if proposed_detections else 0
+    
+    # Average accuracy for model comparison
+    baseline_accuracy_avg = np.mean([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
+    proposed_accuracy_avg = np.mean([conf for _, conf in proposed_detections]) * 100 if proposed_detections else 0
 
     # =========================
     # LAYOUT
@@ -645,10 +649,10 @@ if uploaded_file and run_detection:
     comp_col1, comp_col2, comp_col3 = st.columns(3)
     
     with comp_col1:
-        accuracy_improvement = proposed_accuracy - baseline_accuracy
+        accuracy_improvement = proposed_accuracy_avg - baseline_accuracy_avg
         st.metric(
             label="Accuracy Improvement",
-            value=f"{proposed_accuracy:.2f}%",
+            value=f"{proposed_accuracy_avg:.2f}%",
             delta=f"{accuracy_improvement:.2f}%"
         )
     
