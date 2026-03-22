@@ -569,6 +569,12 @@ if uploaded_file and run_detection:
     # Average accuracy for model comparison
     baseline_accuracy_avg = np.mean([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
     proposed_accuracy_avg = np.mean([conf for _, conf in proposed_detections]) * 100 if proposed_detections else 0
+    
+    # Calculate metric improvements for delta display
+    precision_improvement = (proposed_metrics["precision"] - baseline_metrics["precision"]) * 100
+    recall_improvement = (proposed_metrics["recall"] - baseline_metrics["recall"]) * 100
+    map50_improvement = (proposed_metrics["mAP50"] - baseline_metrics["mAP50"]) * 100
+    map95_improvement = (proposed_metrics["mAP50-95"] - baseline_metrics["mAP50-95"]) * 100
 
     # =========================
     # LAYOUT
@@ -596,6 +602,15 @@ if uploaded_file and run_detection:
                 for cls, conf in proposed_detections:
                     st.write(f"{cls} — {conf*100:.1f}%")
 
+        with st.expander("Evaluation Metrics"):
+            m1, m2 = st.columns(2)
+            with m1:
+                st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if precision_improvement >= 0 else '#ef4444') + f'">' + ('+' if precision_improvement >= 0 else '') + f'{precision_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map50_improvement >= 0 else '#ef4444') + f'">' + ('+' if map50_improvement >= 0 else '') + f'{map50_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+            with m2:
+                st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if recall_improvement >= 0 else '#ef4444') + f'">' + ('+' if recall_improvement >= 0 else '') + f'{recall_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map95_improvement >= 0 else '#ef4444') + f'">' + ('+' if map95_improvement >= 0 else '') + f'{map95_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+
         st.markdown('</div>', unsafe_allow_html=True)
 
     # =========================
@@ -619,6 +634,15 @@ if uploaded_file and run_detection:
                 for cls, conf in baseline_detections:
                     st.write(f"{cls} — {conf*100:.1f}%")
 
+        with st.expander("Evaluation Metrics"):
+            m1, m2 = st.columns(2)
+            with m1:
+                st.markdown(f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+            with m2:
+                st.markdown(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+
         st.markdown('</div>', unsafe_allow_html=True)
 
     # =========================
@@ -627,19 +651,11 @@ if uploaded_file and run_detection:
     st.divider()
 
     st.subheader("Model Comparison")
-    st.write("Detailed metrics comparison between Enhanced and Baseline models")
 
-    # Calculate metric improvements
-    accuracy_improvement = proposed_accuracy_avg - baseline_accuracy_avg
-    precision_improvement = (proposed_metrics["precision"] - baseline_metrics["precision"]) * 100
-    recall_improvement = (proposed_metrics["recall"] - baseline_metrics["recall"]) * 100
-    map50_improvement = (proposed_metrics["mAP50"] - baseline_metrics["mAP50"]) * 100
-    map95_improvement = (proposed_metrics["mAP50-95"] - baseline_metrics["mAP50-95"]) * 100
-
-    # First row: Accuracy and Detection counts
     comp_col1, comp_col2, comp_col3 = st.columns(3)
     
     with comp_col1:
+        accuracy_improvement = proposed_accuracy_avg - baseline_accuracy_avg
         st.metric(
             label="Average Accuracy Improvement",
             value=f"{proposed_accuracy_avg:.2f}%",
@@ -656,37 +672,4 @@ if uploaded_file and run_detection:
         st.metric(
             label="Baseline Detections",
             value=baseline_count
-        )
-
-    # Evaluation Metrics comparison
-    st.markdown("### Evaluation Metrics Comparison")
-    
-    eval_col1, eval_col2, eval_col3, eval_col4 = st.columns(4)
-    
-    with eval_col1:
-        st.metric(
-            label="Precision",
-            value=f"{proposed_metrics['precision']*100:.2f}%",
-            delta=f"{precision_improvement:.2f}%"
-        )
-    
-    with eval_col2:
-        st.metric(
-            label="Recall",
-            value=f"{proposed_metrics['recall']*100:.2f}%",
-            delta=f"{recall_improvement:.2f}%"
-        )
-    
-    with eval_col3:
-        st.metric(
-            label="mAP@50",
-            value=f"{proposed_metrics['mAP50']*100:.2f}%",
-            delta=f"{map50_improvement:.2f}%"
-        )
-    
-    with eval_col4:
-        st.metric(
-            label="mAP@50:95",
-            value=f"{proposed_metrics['mAP50-95']*100:.2f}%",
-            delta=f"{map95_improvement:.2f}%"
         )
