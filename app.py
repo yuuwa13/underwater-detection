@@ -412,10 +412,11 @@ if baseline_metrics['precision'] == 0.0:
 
 if proposed_metrics['precision'] == 0.0:
     proposed_metrics = {
-        'precision': 0.8423
-        'recall': 0.72726
-        'mAP50': 0.82561
-        'mAP50-95': 0.57133    }
+        'precision': 0.8423,
+        'recall': 0.72726,
+        'mAP50': 0.82561,
+        'mAP50-95': 0.57133    
+        }
 
 # =========================
 # STICKY NAVBAR (always visible)
