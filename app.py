@@ -37,7 +37,8 @@ st.markdown("""
     right: 0;
     z-index: 9999;
     background: #ffffff;
-    padding: 0 5rem;
+    padding-left: calc((100vw - min(1400px, 100vw)) / 2 + 5rem);
+    padding-right: calc((100vw - min(1400px, 100vw)) / 2 + 5rem);
     height: 60px;
     display: flex;
     align-items: center;
@@ -93,7 +94,7 @@ section.main > div.block-container {
 .stButton > button {
     position: fixed !important;
     top: 10px !important;
-    right: 5rem !important;
+    right: calc((100vw - min(1400px, 100vw)) / 2 + 5rem) !important;
     z-index: 10000 !important;
     background: #374151 !important;
     color: white !important;
