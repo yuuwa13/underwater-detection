@@ -1,5 +1,5 @@
 streamlit>=1.28.0
-git+https://github.com/AaronOlanolan08/ultralytics.git@bba13e98ebb2a32eb5a91642eea9b86574c1a66b
+git+https://github.com/imtoffe/ultralytics.git
 Pillow>=9.0.0
 numpy>=1.23.0
 opencv-python-headless>=4.8.0

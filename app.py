@@ -356,7 +356,7 @@ def load_models():
         """Backfill missing branch_weights for custom branch modules in older checkpoints."""
         for module in yolo_model.model.modules():
             if hasattr(module, "branch_weights"):
-                continue
+                pass
 
             try:
                 num_branches = None
@@ -379,6 +379,13 @@ def load_models():
             except Exception:
                 # Ignore modules that are not compatible with this fallback.
                 pass
+
+            # Compatibility shim for older AdaptiveFeatureFusion checkpoints.
+            if module.__class__.__name__ == "AdaptiveFeatureFusion":
+                if not hasattr(module, "conv_align"):
+                    module.add_module("conv_align", torch.nn.Identity())
+                if not hasattr(module, "ca"):
+                    module.add_module("ca", torch.nn.Identity())
 
     ensure_branch_weights(baseline)
     ensure_branch_weights(proposed)
