@@ -551,7 +551,8 @@ if uploaded_file:
 # =========================
 if uploaded_file and run_detection:
 
-    st.info("Running detection...")
+    status_slot = st.empty()
+    status_slot.info("Running detection...")
 
     # =========================
     # RUN BASELINE
@@ -566,6 +567,9 @@ if uploaded_file and run_detection:
     start = time.time()
     proposed_result = proposed_model(img_array)[0]
     proposed_time = time.time() - start
+
+    # Hide the running status once both model results are ready.
+    status_slot.empty()
 
     # =========================
     # DRAW RESULTS
