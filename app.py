@@ -635,7 +635,10 @@ if uploaded_file and run_detection:
         st.image(proposed_img, use_container_width=True)
 
         if proposed_count == 0:
-            st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
+            if baseline_count == 0:
+                st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
+            else:
+                st.error("no class detected")
         else:
             st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
 
@@ -670,7 +673,10 @@ if uploaded_file and run_detection:
         st.image(baseline_img, use_container_width=True)
 
         if baseline_count == 0:
-            st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
+            if proposed_count == 0:
+                st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
+            else:
+                st.error("no class detected")
         else:
             st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(baseline_accuracy), unsafe_allow_html=True)
 
