@@ -649,14 +649,14 @@ if uploaded_file and run_detection:
                     for cls, conf in proposed_detections:
                         st.write(f"{cls} — {conf*100:.1f}%")
 
-        with st.expander("Evaluation Metrics"):
-            m1, m2 = st.columns(2)
-            with m1:
-                st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if precision_improvement >= 0 else '#ef4444') + f'">' + ('+' if precision_improvement >= 0 else '') + f'{precision_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map50_improvement >= 0 else '#ef4444') + f'">' + ('+' if map50_improvement >= 0 else '') + f'{map50_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-            with m2:
-                st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if recall_improvement >= 0 else '#ef4444') + f'">' + ('+' if recall_improvement >= 0 else '') + f'{recall_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map95_improvement >= 0 else '#ef4444') + f'">' + ('+' if map95_improvement >= 0 else '') + f'{map95_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+            with st.expander("Evaluation Metrics"):
+                m1, m2 = st.columns(2)
+                with m1:
+                    st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if precision_improvement >= 0 else '#ef4444') + f'">' + ('+' if precision_improvement >= 0 else '') + f'{precision_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map50_improvement >= 0 else '#ef4444') + f'">' + ('+' if map50_improvement >= 0 else '') + f'{map50_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                with m2:
+                    st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if recall_improvement >= 0 else '#ef4444') + f'">' + ('+' if recall_improvement >= 0 else '') + f'{recall_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map95_improvement >= 0 else '#ef4444') + f'">' + ('+' if map95_improvement >= 0 else '') + f'{map95_improvement:.2f}%</span></div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -687,14 +687,14 @@ if uploaded_file and run_detection:
                     for cls, conf in baseline_detections:
                         st.write(f"{cls} — {conf*100:.1f}%")
 
-        with st.expander("Evaluation Metrics"):
-            m1, m2 = st.columns(2)
-            with m1:
-                st.markdown(f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
-            with m2:
-                st.markdown(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+            with st.expander("Evaluation Metrics"):
+                m1, m2 = st.columns(2)
+                with m1:
+                    st.markdown(f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+                with m2:
+                    st.markdown(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
