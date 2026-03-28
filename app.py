@@ -627,47 +627,9 @@ if uploaded_file and run_detection:
     col1, col2 = st.columns(2, gap="large")
 
     # =========================
-    # PROPOSED MODEL PANEL
+    # BASELINE MODEL PANEL (LEFT)
     # =========================
     with col1:
-        st.markdown('''
-        <div class="card proposed">
-            <div class="card-title">Enhanced Model</div>
-        </div>
-        ''', unsafe_allow_html=True)
-
-        st.image(proposed_img, use_container_width=True)
-
-        if proposed_count == 0:
-            if baseline_count == 0:
-                st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
-            else:
-                st.error("no class detected")
-        else:
-            st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
-
-            st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
-            
-            with st.expander("See More"):
-                if proposed_detections:
-                    for cls, conf in proposed_detections:
-                        st.write(f"{cls} — {conf*100:.1f}%")
-
-            with st.expander("Evaluation Metrics"):
-                m1, m2 = st.columns(2)
-                with m1:
-                    st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if precision_improvement >= 0 else '#ef4444') + f'">' + ('+' if precision_improvement >= 0 else '') + f'{precision_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map50_improvement >= 0 else '#ef4444') + f'">' + ('+' if map50_improvement >= 0 else '') + f'{map50_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                with m2:
-                    st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if recall_improvement >= 0 else '#ef4444') + f'">' + ('+' if recall_improvement >= 0 else '') + f'{recall_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map95_improvement >= 0 else '#ef4444') + f'">' + ('+' if map95_improvement >= 0 else '') + f'{map95_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # =========================
-    # BASELINE MODEL PANEL
-    # =========================
-    with col2:
         st.markdown('''
         <div class="card">
             <div class="card-title">Baseline Model</div>
@@ -699,6 +661,44 @@ if uploaded_file and run_detection:
                 with m2:
                     st.markdown(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
                     st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # =========================
+    # ENHANCED MODEL PANEL (RIGHT)
+    # =========================
+    with col2:
+        st.markdown('''
+        <div class="card proposed">
+            <div class="card-title">Enhanced Model</div>
+        </div>
+        ''', unsafe_allow_html=True)
+
+        st.image(proposed_img, use_container_width=True)
+
+        if proposed_count == 0:
+            if baseline_count == 0:
+                st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
+            else:
+                st.error("no class detected")
+        else:
+            st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
+
+            st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
+            
+            with st.expander("See More"):
+                if proposed_detections:
+                    for cls, conf in proposed_detections:
+                        st.write(f"{cls} — {conf*100:.1f}%")
+
+            with st.expander("Evaluation Metrics"):
+                m1, m2 = st.columns(2)
+                with m1:
+                    st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if precision_improvement >= 0 else '#ef4444') + f'">' + ('+' if precision_improvement >= 0 else '') + f'{precision_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map50_improvement >= 0 else '#ef4444') + f'">' + ('+' if map50_improvement >= 0 else '') + f'{map50_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                with m2:
+                    st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if recall_improvement >= 0 else '#ef4444') + f'">' + ('+' if recall_improvement >= 0 else '') + f'{recall_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map95_improvement >= 0 else '#ef4444') + f'">' + ('+' if map95_improvement >= 0 else '') + f'{map95_improvement:.2f}%</span></div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
