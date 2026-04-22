@@ -8,6 +8,15 @@ from io import BytesIO
 import torch
 
 # =========================
+# HISTORY STATE
+# =========================
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+if "show_history" not in st.session_state:
+    st.session_state.show_history = False
+    
+# =========================
 # PAGE CONFIG
 # =========================
 st.set_page_config(
@@ -91,22 +100,22 @@ section.main > div.block-container {
 }
 
 /* Run Detection button - fixed top right inside navbar */
-.stButton > button {
-    position: fixed !important;
-    top: 10px !important;
-    right: calc((100vw - min(1400px, 100vw)) / 2 + 5rem) !important;
-    z-index: 10000 !important;
-    background: #374151 !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 8px 20px !important;
-    font-weight: 500 !important;
-    font-size: 14px !important;
-    width: auto !important;
-    min-width: 0 !important;
-    cursor: pointer !important;
-}
+# .stButton > button {
+#     position: fixed !important;
+#     top: 10px !important;
+#     right: calc((100vw - min(1400px, 100vw)) / 2 + 5rem) !important;
+#     z-index: 10000 !important;
+#     background: #374151 !important;
+#     color: white !important;
+#     border: none !important;
+#     border-radius: 8px !important;
+#     padding: 8px 20px !important;
+#     font-weight: 500 !important;
+#     font-size: 14px !important;
+#     width: auto !important;
+#     min-width: 0 !important;
+#     cursor: pointer !important;
+# }
 
 .stButton > button:hover:not(:disabled) {
     background: #1e40af !important;
@@ -383,6 +392,13 @@ h2, h3 {
 [data-testid="stFileUploader"] > div > div > div {
     color: #111827 !important;
 }
+            
+/* Clean hover style */
+div[data-testid="stButton"] button:hover {
+    background: #1e40af !important;  /* darker blue */
+    color: white !important;
+    border: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 # =========================
@@ -489,15 +505,77 @@ if proposed_metrics['precision'] == 0.0:
 st.markdown('<div class="navbar">Underwater Object Detection Prototype</div>', unsafe_allow_html=True)
 
 # =========================
+# TOGGLE BUTTON (History ↔ Back)
+# =========================
+history_col1, history_col2 = st.columns([8, 1])
+
+with history_col2:
+    if st.session_state.show_history:
+        if st.button("← Back", key="back_btn"):
+            st.session_state.show_history = False
+            st.rerun()
+    else:
+        if st.button("History", key="history_btn"):
+            st.session_state.show_history = True
+            st.rerun()
+
+if st.session_state.show_history:
+
+    col1, col2 = st.columns([8,1])
+
+    with col1:
+        st.title("Detection History")
+
+    if not st.session_state.history:
+        st.markdown(
+            """
+            <div style="text-align:center; padding:60px 0;">
+                <div style="font-size:16px; color:#374151; font-weight:500;">No history yet</div>
+                <div style="font-size:13px; color:#9ca3af; margin-top:6px;">
+                    Run a detection to see results here
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        for item in st.session_state.history:
+            with st.expander(f"{item['filename']} — {item['time']}"):
+                c1, c2 = st.columns(2)
+
+                with c1:
+                    st.image(item["baseline_img"], caption="Baseline")
+                    st.write(f"Detections: {item['baseline_count']}")
+                    st.write(f"Accuracy: {item['baseline_accuracy']:.1f}%")
+
+                with c2:
+                    st.image(item["proposed_img"], caption="Enhanced")
+                    st.write(f"Detections: {item['proposed_count']}")
+                    st.write(f"Accuracy: {item['proposed_accuracy']:.1f}%")
+
+    st.stop()  # 🚨 IMPORTANT: hides upload + detection UI
+# =========================
 # IMAGE UPLOAD
 # =========================
 preview_slot = st.empty()
 
-uploaded_file = st.file_uploader("Upload Image", type=["jpg","jpeg","png"], label_visibility="collapsed")
+uploaded_file = st.file_uploader(
+    "Upload Image",
+    type=["jpg","jpeg","png"],
+    label_visibility="collapsed",
+)
 
-# Run Detection button always rendered (CSS pins it to navbar top-right)
-# Disabled until a file is uploaded
-run_detection = st.button("Run Detection", disabled=not uploaded_file)
+# =========================
+# RUN BUTTON (BELOW UPLOAD)
+# =========================
+run_col1, run_col2, run_col3 = st.columns([1,1,1])
+
+with run_col2:
+    run_detection = st.button(
+        "Run Detection",
+        disabled=not uploaded_file,
+        use_container_width=True
+    )
 
 # =========================
 # IF IMAGE UPLOADED
@@ -620,6 +698,25 @@ if uploaded_file and run_detection:
     recall_improvement = (proposed_metrics["recall"] - baseline_metrics["recall"]) * 100
     map50_improvement = (proposed_metrics["mAP50"] - baseline_metrics["mAP50"]) * 100
     map95_improvement = (proposed_metrics["mAP50-95"] - baseline_metrics["mAP50-95"]) * 100
+
+    # =========================
+    # SAVE TO HISTORY
+    # =========================
+    history_entry = {
+        "image": img_array,
+        "filename": uploaded_file.name,
+        "baseline_img": baseline_img,
+        "proposed_img": proposed_img,
+        "baseline_count": baseline_count,
+        "proposed_count": proposed_count,
+        "baseline_accuracy": baseline_accuracy,
+        "proposed_accuracy": proposed_accuracy,
+        "time": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    # Keep only last 10 entries (optional limit)
+    st.session_state.history.insert(0, history_entry)
+    st.session_state.history = st.session_state.history[:10]
 
     # =========================
     # LAYOUT
