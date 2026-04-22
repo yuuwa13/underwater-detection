@@ -67,6 +67,19 @@ section.main > div.block-container {
 .nav-link.active { color: #ffffff; }
 .nav-link.active::after { transform: scaleX(1); }
 
+.nav-cta {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: #ffffff; text-decoration: none;
+    background: #1FA3A3;
+    padding: 8px 18px; border-radius: 7px;
+    letter-spacing: 0.01em;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 1px 3px rgba(31,163,163,0.35);
+}
+.nav-cta:hover { background: #17888a; box-shadow: 0 3px 10px rgba(31,163,163,0.4); }
+.nav-cta-active { background: #17888a; }
+
 /* ── Cards ── */
 .card {
     background: #ffffff;
@@ -246,16 +259,19 @@ def render_navbar(active: str = "Home"):
         ("Home",           "/",               "Home"),
         ("Instructions",   "/Instructions",   "Instructions"),
         ("Contact_Us",     "/Contact_Us",     "Contact Us"),
-        ("Run_Simulation", "/Run_Simulation", "Run Simulation"),
     ]
     links = "".join(
         f'<a href="{href}" class="nav-link{" active" if key == active else ""}">{label}</a>'
         for key, href, label in pages
     )
+    run_sim_active = ' nav-cta-active' if active == "Run_Simulation" else ''
     st.html(
         f'<div class="navbar">'
         f'<a href="/" class="navbar-brand">Underwater Detection</a>'
-        f'<div class="navbar-links">{links}</div>'
+        f'<div class="navbar-links">'
+        f'{links}'
+        f'<a href="/Run_Simulation" class="nav-cta{run_sim_active}">Run Simulation</a>'
+        f'</div>'
         f'</div>'
     )
 
