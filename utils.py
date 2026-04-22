@@ -7,7 +7,7 @@ _BRAND_CSS = """
 
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
-    background-color: #ffffff !important;
+    background-color: #eef2f7 !important;
     color: #0f172a;
 }
 
@@ -19,9 +19,9 @@ html, body, .stApp {
 #MainMenu                        { display: none !important; }
 footer                           { display: none !important; }
 
-/* ── Content offset below fixed navbar ── */
+/* ── Content offset below floating navbar ── */
 [data-testid="stAppViewContainer"] > section:first-child {
-    padding-top: 68px !important;
+    padding-top: 88px !important;
 }
 [data-testid="stMainBlockContainer"],
 .main .block-container,
@@ -33,25 +33,32 @@ section.main > div.block-container {
     padding-bottom: 0 !important;
 }
 
-/* ── Navbar ── */
+/* ── Floating pill navbar ── */
 .navbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-    background: #0B3C5D;
-    height: 68px;
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 9999;
+    background: rgba(11, 60, 93, 0.82);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    height: 56px;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 calc((100vw - 1280px) / 2 + 6rem);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 0 28px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 8px 32px rgba(11,60,93,0.25), 0 1px 2px rgba(0,0,0,0.12);
+    gap: 40px;
+    white-space: nowrap;
 }
 .navbar-brand {
     font-family: 'Poppins', sans-serif;
-    font-size: 14px; font-weight: 600;
-    color: #ffffff; text-decoration: none; white-space: nowrap;
+    font-size: 13.5px; font-weight: 600;
+    color: #ffffff; text-decoration: none;
     letter-spacing: 0.01em;
 }
-.navbar-links { display: flex; gap: 2.5rem; align-items: center; }
+.navbar-links { display: flex; gap: 2rem; align-items: center; }
 .nav-link {
     font-family: 'Inter', sans-serif;
-    font-size: 13.5px; font-weight: 500;
+    font-size: 13px; font-weight: 500;
     color: rgba(255,255,255,0.55); text-decoration: none;
     transition: color 0.15s;
     position: relative;
@@ -72,12 +79,12 @@ section.main > div.block-container {
     font-size: 13px; font-weight: 600;
     color: #ffffff; text-decoration: none;
     background: #1FA3A3;
-    padding: 8px 18px; border-radius: 7px;
+    padding: 8px 18px; border-radius: 9px;
     letter-spacing: 0.01em;
     transition: background 0.15s, box-shadow 0.15s;
-    box-shadow: 0 1px 3px rgba(31,163,163,0.35);
+    box-shadow: 0 1px 4px rgba(31,163,163,0.4);
 }
-.nav-cta:hover { background: #17888a; box-shadow: 0 3px 10px rgba(31,163,163,0.4); }
+.nav-cta:hover { background: #17888a; box-shadow: 0 4px 12px rgba(31,163,163,0.45); }
 .nav-cta-active { background: #17888a; }
 
 /* ── Cards ── */
@@ -230,7 +237,6 @@ hr { border: none !important; border-top: 1px solid #e2e8f0 !important; margin: 
 
 /* ── Responsive ── */
 @media (max-width: 1400px) {
-    .navbar { padding: 0 3rem; }
     [data-testid="stMainBlockContainer"],
     .main .block-container,
     section.main > div.block-container {
@@ -238,8 +244,8 @@ hr { border: none !important; border-top: 1px solid #e2e8f0 !important; margin: 
     }
 }
 @media (max-width: 768px) {
-    .navbar { padding: 0 1.5rem; height: auto; padding-top: 14px; padding-bottom: 14px; flex-wrap: wrap; gap: 12px; }
-    .navbar-links { gap: 1.25rem; flex-wrap: wrap; }
+    .navbar { padding: 0 16px; gap: 16px; width: calc(100% - 32px); border-radius: 12px; }
+    .navbar-links { gap: 1rem; }
     [data-testid="stMainBlockContainer"],
     .main .block-container,
     section.main > div.block-container {

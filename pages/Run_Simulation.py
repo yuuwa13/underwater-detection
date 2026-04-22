@@ -17,22 +17,6 @@ st.set_page_config(
 
 inject_branding()
 
-# Pin Run Detection button to navbar top-right on this page only
-st.html("""
-<style>
-.stButton > button {
-    position: fixed !important;
-    top: 14px !important;
-    right: calc((100vw - 1280px) / 2 + 6rem) !important;
-    z-index: 10000 !important;
-    width: auto !important;
-    min-width: 0 !important;
-}
-@media (max-width: 1400px) { .stButton > button { right: 3rem !important; } }
-@media (max-width: 768px)  { .stButton > button { right: 1.5rem !important; } }
-</style>
-""")
-
 render_navbar("Run_Simulation")
 
 # ── Load models ────────────────────────────────────────────────────────────────
