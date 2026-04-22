@@ -419,6 +419,7 @@ div[data-testid="stButton"] button:active {
 @st.cache_resource
 def load_models():
     baseline = YOLO("models/baseline_best.pt")
+    # baseline = YOLO("models/baseline-best.pt")
     proposed = YOLO("models/proposed_best.pt")
 
     def ensure_branch_weights(yolo_model):
@@ -497,18 +498,18 @@ proposed_metrics = get_model_metrics(proposed_model)
 # You can update these values with your actual validation results
 if baseline_metrics['precision'] == 0.0:
     baseline_metrics = {
-        'precision': 0.8205,
-        'recall': 0.7260,
-        'mAP50': 0.8137,
-        'mAP50-95': 0.5639
+        'precision': 0.8272,
+        'recall': 0.7667,
+        'mAP50': 0.8421,
+        'mAP50-95': 0.6005
     }
 
 if proposed_metrics['precision'] == 0.0:
     proposed_metrics = {
         'precision': 0.8423,
-        'recall': 0.72726,
-        'mAP50': 0.82561,
-        'mAP50-95': 0.57133    
+        'recall': 0.7726,
+        'mAP50': 0.8561,
+        'mAP50-95': 0.6133    
         }
 
 # =========================
@@ -580,6 +581,17 @@ if st.session_state.show_history:
                                 st.write(f"{cls} — {conf*100:.1f}%")
                         else:
                             st.write("No detections")
+                            
+                import pandas as pd
+
+                st.markdown("#### Detected Objects Accuracy Comparison")
+
+                if item.get("comparison_table"):
+                    df = pd.DataFrame(item["comparison_table"])
+                    st.dataframe(df, use_container_width=True)
+                else:
+                    st.write("No comparison data available")
+
 
     st.stop()  # 🚨 IMPORTANT: hides upload + detection UI
 # =========================
@@ -710,8 +722,17 @@ if uploaded_file and run_detection:
     proposed_count = len(proposed_result.boxes.cls)
     
     # Detection accuracy is the highest bounding-box confidence.
-    baseline_accuracy = max([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
-    proposed_accuracy = max([conf for _, conf in proposed_detections]) * 100 if proposed_detections else 0
+    if baseline_detections:
+        best_baseline_cls, best_baseline_conf = max(baseline_detections, key=lambda x: x[1])
+        baseline_accuracy = best_baseline_conf * 100
+    else:
+        best_baseline_cls, baseline_accuracy = "-", 0
+    
+    if proposed_detections:
+        best_proposed_cls, best_proposed_conf = max(proposed_detections, key=lambda x: x[1])
+        proposed_accuracy = best_proposed_conf * 100
+    else:
+        best_proposed_cls, proposed_accuracy = "-", 0
     
     # Average accuracy for model comparison
     baseline_accuracy_avg = np.mean([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
@@ -723,27 +744,40 @@ if uploaded_file and run_detection:
     map50_improvement = (proposed_metrics["mAP50"] - baseline_metrics["mAP50"]) * 100
     map95_improvement = (proposed_metrics["mAP50-95"] - baseline_metrics["mAP50-95"]) * 100
 
-    # =========================
-    # SAVE TO HISTORY
-    # =========================
-    history_entry = {
-        "image": img_array,
-        "filename": uploaded_file.name,
-        "baseline_img": baseline_img,
-        "proposed_img": proposed_img,
-        "baseline_count": baseline_count,
-        "proposed_count": proposed_count,
-        "baseline_detections": baseline_detections,
-        "proposed_detections": proposed_detections,
-        "baseline_accuracy": baseline_accuracy,
-        "proposed_accuracy": proposed_accuracy,
-        "time": time.strftime("%Y-%m-%d %H:%M:%S")
-    }
+    def match_detections(baseline, proposed):
+        """
+        Match detections by class and pair them by highest confidence.
+        Returns list of (class, baseline_conf, proposed_conf)
+        """
+        from collections import defaultdict
 
-    # Keep only last 10 entries (optional limit)
-    st.session_state.history.insert(0, history_entry)
-    st.session_state.history = st.session_state.history[:10]
+        base_dict = defaultdict(list)
+        prop_dict = defaultdict(list)
 
+        # group by class
+        for cls, conf in baseline:
+            base_dict[cls].append(conf)
+
+        for cls, conf in proposed:
+            prop_dict[cls].append(conf)
+
+        matched = []
+
+        all_classes = set(base_dict.keys()).union(set(prop_dict.keys()))
+
+        for cls in all_classes:
+            base_list = sorted(base_dict[cls], reverse=True)
+            prop_list = sorted(prop_dict[cls], reverse=True)
+
+            max_len = max(len(base_list), len(prop_list))
+
+            for i in range(max_len):
+                b = base_list[i] if i < len(base_list) else None
+                p = prop_list[i] if i < len(prop_list) else None
+
+                matched.append((cls, b, p))
+
+        return matched
     # =========================
     # LAYOUT
     # =========================
@@ -767,7 +801,12 @@ if uploaded_file and run_detection:
             else:
                 st.error("no class detected")
         else:
-            st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(baseline_accuracy), unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="metric-box">Highest Detection Accuracy<br>'
+                f'<b>{baseline_accuracy:.1f}%</b><br>'
+                f'<span style="font-size:12px;color:#6b7280">({best_baseline_cls})</span></div>',
+                unsafe_allow_html=True
+            )
 
             st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
             
@@ -805,7 +844,12 @@ if uploaded_file and run_detection:
             else:
                 st.error("no class detected")
         else:
-            st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="metric-box">Highest Detection Accuracy<br>'
+                f'<b>{proposed_accuracy:.1f}%</b><br>'
+                f'<span style="font-size:12px;color:#6b7280">({best_proposed_cls})</span></div>',
+                unsafe_allow_html=True
+            )
 
             st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
             
@@ -825,9 +869,23 @@ if uploaded_file and run_detection:
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # =========================
-    # COMPARISON
-    # =========================
+    matched = match_detections(baseline_detections, proposed_detections)
+
+    table_data = []
+    for cls, b, p in matched:
+        table_data.append({
+            "Class": cls,
+            "Baseline (%)": f"{b*100:.1f}" if b else "-",
+            "Enhanced (%)": f"{p*100:.1f}" if p else "-",
+            "Difference": f"{(p - b)*100:.1f}" if b and p else "-"
+        })
+
+    import pandas as pd
+    df = pd.DataFrame(table_data)
+
+    st.markdown("### Detected Objects Accuracy Comparison")
+    st.dataframe(df, use_container_width=True)
+    
     st.divider()
 
     st.subheader("Model Comparison")
@@ -853,3 +911,25 @@ if uploaded_file and run_detection:
             label="Baseline Detections",
             value=baseline_count
         )
+
+        # =========================
+    # SAVE TO HISTORY
+    # =========================
+    history_entry = {
+        "image": img_array,
+        "filename": uploaded_file.name,
+        "baseline_img": baseline_img,
+        "proposed_img": proposed_img,
+        "baseline_count": baseline_count,
+        "proposed_count": proposed_count,
+        "baseline_detections": baseline_detections,
+        "proposed_detections": proposed_detections,
+        "baseline_accuracy": baseline_accuracy,
+        "proposed_accuracy": proposed_accuracy,
+        "comparison_table": table_data,
+        "time": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    # Keep only last 10 entries (optional limit)
+    st.session_state.history.insert(0, history_entry)
+    st.session_state.history = st.session_state.history[:10]
