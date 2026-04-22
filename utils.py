@@ -33,15 +33,20 @@ section.main > div.block-container {
     padding-bottom: 0 !important;
 }
 
-/* ── Floating pill navbar ── */
-.navbar {
+/* ── Floating pill navbar wrapper (handles fixed positioning) ── */
+.navbar-wrap {
     position: fixed; top: 16px;
     left: 50%; transform: translateX(-50%);
     z-index: 9999;
+    width: min(1200px, calc(100vw - 32px));
+}
+.nav-toggle { display: none; }
+
+/* ── Navbar pill ── */
+.navbar {
     background: rgba(11, 60, 93, 0.82);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    width: min(1200px, calc(100vw - 32px));
     height: 56px;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 28px;
@@ -87,6 +92,60 @@ section.main > div.block-container {
 }
 .nav-cta:hover { background: #17888a; box-shadow: 0 4px 12px rgba(31,163,163,0.45); }
 .nav-cta-active { background: #17888a; }
+
+/* ── Hamburger icon (hidden on desktop) ── */
+.hamburger {
+    display: none;
+    flex-direction: column; justify-content: center;
+    gap: 5px; cursor: pointer;
+    width: 32px; height: 32px;
+    padding: 4px;
+}
+.hamburger span {
+    display: block; height: 2px; width: 100%;
+    background: #ffffff; border-radius: 2px;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+    transform-origin: center;
+}
+/* Animate to X when checked */
+.nav-toggle:checked ~ .navbar .hamburger span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.nav-toggle:checked ~ .navbar .hamburger span:nth-child(2) {
+    opacity: 0; transform: scaleX(0);
+}
+.nav-toggle:checked ~ .navbar .hamburger span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+/* Remove bottom border-radius when menu is open */
+.nav-toggle:checked ~ .navbar {
+    border-radius: 16px 16px 0 0;
+}
+
+/* ── Mobile dropdown menu ── */
+.mobile-menu {
+    display: none;
+    flex-direction: column;
+    background: rgba(11, 60, 93, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    padding: 12px 20px 16px;
+    gap: 4px;
+}
+.nav-toggle:checked ~ .mobile-menu { display: flex; }
+.mobile-menu .nav-link {
+    font-size: 14px; padding: 10px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.mobile-menu .nav-link:last-of-type { border-bottom: none; }
+.mobile-menu .nav-link::after { display: none; }
+.mobile-menu .nav-cta {
+    margin-top: 8px; text-align: center;
+    padding: 11px 18px; border-radius: 9px;
+}
 
 /* ── Cards ── */
 .card {
@@ -237,36 +296,34 @@ hr { border: none !important; border-top: 1px solid #e2e8f0 !important; margin: 
 [data-testid="stAlert"] { border-radius: 10px !important; }
 
 /* ── Responsive ── */
-/* Tablet */
+/* Tablet / Mobile: show hamburger, hide desktop links */
 @media (max-width: 768px) {
-    .navbar {
+    .navbar-wrap {
         width: calc(100vw - 24px);
+        top: 12px;
+    }
+    .navbar {
         padding: 0 16px;
         height: 50px;
         border-radius: 12px;
     }
+    .nav-toggle:checked ~ .navbar { border-radius: 12px 12px 0 0; }
+    .mobile-menu { border-radius: 0 0 12px 12px; }
     .navbar-brand { font-size: 12.5px; }
-    .navbar-links { gap: 1rem; }
-    .nav-link { font-size: 12px; }
-    .nav-cta { font-size: 12px; padding: 6px 12px; }
-    [data-testid="stAppViewContainer"] > section:first-child { padding-top: 78px !important; }
+    .navbar-links { display: none; }
+    .hamburger { display: flex; }
+    [data-testid="stAppViewContainer"] > section:first-child { padding-top: 74px !important; }
     [data-testid="stMainBlockContainer"],
     .main .block-container,
     section.main > div.block-container {
         padding-left: 1.25rem !important; padding-right: 1.25rem !important;
     }
 }
-/* Mobile */
 @media (max-width: 480px) {
-    .navbar {
-        width: calc(100vw - 16px);
-        padding: 0 12px;
-        border-radius: 10px;
-    }
-    .navbar-brand { display: none; }
-    .navbar-links { gap: 0.75rem; width: 100%; justify-content: space-between; }
-    .nav-link { font-size: 11.5px; }
-    .nav-cta { font-size: 11.5px; padding: 6px 10px; }
+    .navbar-wrap { width: calc(100vw - 16px); }
+    .navbar { border-radius: 10px; }
+    .nav-toggle:checked ~ .navbar { border-radius: 10px 10px 0 0; }
+    .mobile-menu { border-radius: 0 0 10px 10px; }
 }
 </style>
 """
@@ -286,12 +343,26 @@ def render_navbar(active: str = "Home"):
         f'<a href="{href}" class="nav-link{" active" if key == active else ""}">{label}</a>'
         for key, href, label in pages
     )
+    mobile_links = "".join(
+        f'<a href="{href}" class="nav-link{" active" if key == active else ""}">{label}</a>'
+        for key, href, label in pages
+    )
     run_sim_active = ' nav-cta-active' if active == "Run_Simulation" else ''
     st.html(
-        f'<div class="navbar">'
+        f'<div class="navbar-wrap">'
+        f'<input type="checkbox" id="nav-toggle" class="nav-toggle">'
+        f'<nav class="navbar">'
         f'<a href="/" class="navbar-brand">Underwater Detection</a>'
         f'<div class="navbar-links">'
         f'{links}'
+        f'<a href="/Run_Simulation" class="nav-cta{run_sim_active}">Run Simulation</a>'
+        f'</div>'
+        f'<label for="nav-toggle" class="hamburger" aria-label="Toggle navigation">'
+        f'<span></span><span></span><span></span>'
+        f'</label>'
+        f'</nav>'
+        f'<div class="mobile-menu">'
+        f'{mobile_links}'
         f'<a href="/Run_Simulation" class="nav-cta{run_sim_active}">Run Simulation</a>'
         f'</div>'
         f'</div>'
