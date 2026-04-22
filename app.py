@@ -12,123 +12,171 @@ inject_branding()
 render_navbar("Home")
 
 # ── Hero ──────────────────────────────────────────────────────────────────────
-st.markdown("""
-<div style="padding: 80px 0 60px; text-align: center;">
-    <p style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
-              color:#1FA3A3;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">
-        University of Mindanao · Thesis Research
-    </p>
-    <h1 style="font-family:'Poppins',sans-serif;font-size:44px;font-weight:700;
-               color:#0B3C5D;line-height:1.25;margin-bottom:20px;">
-        An Enhanced YOLOv12 Architecture<br>with Dual-Branch Network for<br>Underwater Object Detection
+st.html("""
+<div style="padding:88px 0 72px;text-align:center;border-bottom:1px solid #e2e8f0;">
+    <div style="display:inline-flex;align-items:center;gap:8px;
+                background:#f0fafa;border:1px solid #c7eaea;
+                border-radius:100px;padding:5px 14px;margin-bottom:28px;">
+        <span style="display:inline-block;width:7px;height:7px;
+                     background:#1FA3A3;border-radius:50%;"></span>
+        <span style="font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;
+                     color:#0B7A7A;letter-spacing:0.04em;">
+            University of Mindanao &nbsp;·&nbsp; Thesis Research
+        </span>
+    </div>
+    <h1 style="font-family:'Poppins',sans-serif;font-size:48px;font-weight:700;
+               color:#0B3C5D;line-height:1.18;margin-bottom:22px;letter-spacing:-0.02em;">
+        An Enhanced YOLOv12 Architecture<br>
+        <span style="color:#1FA3A3;">with Dual-Branch Network</span><br>
+        for Underwater Object Detection
     </h1>
-    <p style="font-family:'Inter',sans-serif;font-size:17px;color:#4b6a7d;
-              max-width:720px;margin:0 auto 40px;line-height:1.75;">
-        Improving underwater object detection by enhancing YOLOv12 with a Dual-Branch Input Stem
-        that preserves visual features while reducing the effects of underwater noise and image degradation.
+    <p style="font-family:'Inter',sans-serif;font-size:17px;color:#64748b;
+              max-width:640px;margin:0 auto 40px;line-height:1.75;font-weight:400;">
+        A research prototype comparing Baseline and Enhanced YOLOv12 models
+        for detecting marine objects under noisy underwater conditions.
     </p>
-    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <a href="/Run_Simulation" style="
             display:inline-block;background:#0B3C5D;color:#ffffff;
             text-decoration:none;font-family:'Inter',sans-serif;
-            font-weight:600;font-size:15px;padding:14px 32px;border-radius:8px;">
-            Run Simulation
+            font-weight:600;font-size:14px;padding:13px 28px;
+            border-radius:8px;letter-spacing:0.01em;
+            box-shadow:0 1px 3px rgba(11,60,93,0.25);">
+            Run Simulation →
         </a>
         <a href="/Instructions" style="
-            display:inline-block;background:transparent;color:#0B3C5D;
-            border:2px solid #0B3C5D;text-decoration:none;
-            font-family:'Inter',sans-serif;font-weight:600;
-            font-size:15px;padding:12px 30px;border-radius:8px;">
+            display:inline-block;background:#ffffff;color:#0B3C5D;
+            border:1.5px solid #cbd5e1;text-decoration:none;
+            font-family:'Inter',sans-serif;font-weight:500;
+            font-size:14px;padding:12px 24px;border-radius:8px;">
             View Instructions
         </a>
     </div>
 </div>
-""", unsafe_allow_html=True)
+""")
 
 # ── Class badges ──────────────────────────────────────────────────────────────
-classes = ["Echinus", "Holothurian", "Scallop", "Starfish"]
+classes = [
+    ("🦔", "Echinus"),
+    ("🐙", "Holothurian"),
+    ("🐚", "Scallop"),
+    ("⭐", "Starfish"),
+]
 badges = "".join(
-    f'<span style="background:#E8F1F2;color:#0B3C5D;border:1px solid #CFE3E6;'
-    f'border-radius:20px;padding:6px 18px;font-family:Inter,sans-serif;'
-    f'font-size:14px;font-weight:500;">{c}</span>'
-    for c in classes
+    f'<div style="display:flex;align-items:center;gap:8px;'
+    f'background:#f8fafc;border:1px solid #e2e8f0;'
+    f'border-radius:10px;padding:10px 20px;">'
+    f'<span style="font-size:18px;">{icon}</span>'
+    f'<span style="font-family:Inter,sans-serif;font-size:13.5px;'
+    f'font-weight:500;color:#334155;">{name}</span>'
+    f'</div>'
+    for icon, name in classes
 )
-st.markdown(
-    f'<div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:64px;">{badges}</div>',
-    unsafe_allow_html=True,
+st.html(
+    f'<div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;'
+    f'padding:32px 0 48px;">'
+    f'<span style="font-family:Inter,sans-serif;font-size:12px;font-weight:500;'
+    f'color:#94a3b8;letter-spacing:0.06em;align-self:center;margin-right:8px;">DETECTABLE CLASSES</span>'
+    f'{badges}</div>'
 )
-
-st.divider()
 
 # ── About the Study ───────────────────────────────────────────────────────────
 col_txt, col_card = st.columns([3, 2], gap="large")
 with col_txt:
-    st.markdown("""
-    <h2 style="font-family:'Poppins',sans-serif;font-size:30px;font-weight:700;
-               color:#0B3C5D;margin-bottom:16px;">About the Study</h2>
-    <p style="font-family:'Inter',sans-serif;font-size:16px;color:#374151;line-height:1.75;margin-bottom:16px;">
-        Underwater images often suffer from blur, color distortion, poor visibility, and environmental noise.
-        These challenges make object detection difficult and reduce model performance.
-    </p>
-    <p style="font-family:'Inter',sans-serif;font-size:16px;color:#374151;line-height:1.75;margin-bottom:24px;">
-        This study addresses that problem by improving YOLOv12 through a dual-branch architecture composed of
-        a <strong>standard branch</strong> for structural feature extraction, a <strong>denoising branch</strong>
-        for noise suppression, and <strong>adaptive feature fusion</strong> to combine both outputs effectively.
-    </p>
-    <a href="#" style="
-        display:inline-flex;align-items:center;gap:8px;
-        background:#1FA3A3;color:#ffffff;text-decoration:none;
-        font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
-        padding:12px 24px;border-radius:8px;">
-        📄 View Thesis Document
-    </a>
-    """, unsafe_allow_html=True)
+    st.html("""
+    <div style="padding:16px 0;">
+        <div style="font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;
+                    color:#1FA3A3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">
+            About the Study
+        </div>
+        <h2 style="font-family:'Poppins',sans-serif;font-size:28px;font-weight:700;
+                   color:#0B3C5D;margin-bottom:18px;line-height:1.3;letter-spacing:-0.01em;">
+            Addressing the Challenges of Underwater Vision
+        </h2>
+        <p style="font-family:'Inter',sans-serif;font-size:15.5px;color:#475569;
+                  line-height:1.8;margin-bottom:16px;">
+            Underwater images often suffer from blur, color distortion, poor visibility, and
+            environmental noise — making object detection significantly harder than in terrestrial settings.
+        </p>
+        <p style="font-family:'Inter',sans-serif;font-size:15.5px;color:#475569;
+                  line-height:1.8;margin-bottom:28px;">
+            This study introduces a <strong style="color:#0B3C5D;">Dual-Branch Input Stem</strong>
+            into the YOLOv12 architecture — combining a <em>standard feature branch</em>
+            and a <em>denoising branch</em> through adaptive feature fusion to improve
+            detection accuracy under degraded conditions.
+        </p>
+        <a href="#" style="
+            display:inline-flex;align-items:center;gap:8px;
+            color:#1FA3A3;text-decoration:none;
+            font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
+            border-bottom:1.5px solid #1FA3A3;padding-bottom:2px;">
+            📄 View Thesis Document
+        </a>
+    </div>
+    """)
 with col_card:
-    st.markdown("""
-    <div style="background:#0B3C5D;border-radius:16px;padding:40px 32px;color:#ffffff;
-                display:flex;flex-direction:column;justify-content:center;min-height:300px;">
-        <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
-                    color:#1FA3A3;letter-spacing:2px;margin-bottom:20px;">DUAL-BRANCH ARCHITECTURE</div>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-            <div style="background:rgba(31,163,163,0.15);border-left:3px solid #1FA3A3;padding:12px 16px;border-radius:4px;">
-                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">Standard Branch</div>
-                <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;">Structural feature extraction</div>
+    st.html("""
+    <div style="background:#0B3C5D;border-radius:16px;padding:36px;color:#ffffff;
+                height:100%;min-height:320px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
+                    color:#1FA3A3;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:24px;">
+            Architecture Overview
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+                        border-left:3px solid #1FA3A3;padding:14px 16px;border-radius:8px;">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;
+                            margin-bottom:4px;">Standard Branch</div>
+                <div style="font-family:'Inter',sans-serif;font-size:12.5px;
+                            color:rgba(255,255,255,0.5);">Structural feature extraction</div>
             </div>
-            <div style="background:rgba(31,163,163,0.15);border-left:3px solid #1FA3A3;padding:12px 16px;border-radius:4px;">
-                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">Denoising Branch</div>
-                <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;">Noise suppression & correction</div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+                        border-left:3px solid #1FA3A3;padding:14px 16px;border-radius:8px;">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;
+                            margin-bottom:4px;">Denoising Branch</div>
+                <div style="font-family:'Inter',sans-serif;font-size:12.5px;
+                            color:rgba(255,255,255,0.5);">Noise suppression & correction</div>
             </div>
-            <div style="background:rgba(31,163,163,0.25);border-left:3px solid #ffffff;padding:12px 16px;border-radius:4px;">
-                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">Adaptive Feature Fusion</div>
-                <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;">Combined output for final detection</div>
+            <div style="background:rgba(31,163,163,0.15);border:1px solid rgba(31,163,163,0.3);
+                        border-left:3px solid #ffffff;padding:14px 16px;border-radius:8px;">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;
+                            margin-bottom:4px;">Adaptive Feature Fusion</div>
+                <div style="font-family:'Inter',sans-serif;font-size:12.5px;
+                            color:rgba(255,255,255,0.5);">Combined output for final detection</div>
             </div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-st.markdown("<br>", unsafe_allow_html=True)
-st.divider()
+st.html("<div style='height:56px;'></div>")
 
 # ── Objectives ────────────────────────────────────────────────────────────────
-st.markdown("""
-<h2 style="font-family:'Poppins',sans-serif;font-size:30px;font-weight:700;
-           color:#0B3C5D;margin-bottom:8px;text-align:center;">Objectives</h2>
-<p style="font-family:'Inter',sans-serif;font-size:16px;color:#6b7280;
-          text-align:center;margin-bottom:36px;">What this research aims to achieve</p>
-""", unsafe_allow_html=True)
+st.html("""
+<div style="border-top:1px solid #e2e8f0;padding-top:56px;margin-bottom:40px;">
+    <div style="font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;
+                color:#1FA3A3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">
+        Objectives
+    </div>
+    <h2 style="font-family:'Poppins',sans-serif;font-size:28px;font-weight:700;
+               color:#0B3C5D;letter-spacing:-0.01em;">What this research aims to achieve</h2>
+</div>
+""")
 
 obj_col1, obj_col2 = st.columns(2, gap="large")
 with obj_col1:
-    st.markdown("""
-    <div class="card" style="height:100%;">
-        <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
-                    color:#1FA3A3;letter-spacing:1.5px;margin-bottom:12px;">GENERAL OBJECTIVE</div>
-        <p style="font-family:'Inter',sans-serif;font-size:15px;color:#374151;line-height:1.7;margin:0;">
-            To enhance YOLOv12's performance as a detection model for underwater objects by developing an
-            improved architecture that can better handle noise in underwater environments.
+    st.html("""
+    <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;
+                padding:28px;height:100%;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+        <div style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
+                    color:#1FA3A3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">
+            General Objective
+        </div>
+        <p style="font-family:'Inter',sans-serif;font-size:15px;color:#475569;line-height:1.75;margin:0;">
+            To enhance YOLOv12's performance as a detection model for underwater objects by developing
+            an improved architecture that can better handle noise in underwater environments.
         </p>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 with obj_col2:
     specific = [
         "Preprocess underwater datasets for training and evaluation",
@@ -137,75 +185,92 @@ with obj_col2:
         "Evaluate both models using Precision, Recall, mAP@50, and mAP@50:95",
     ]
     items = "".join(
-        f'<li style="font-family:Inter,sans-serif;font-size:15px;color:#374151;'
-        f'line-height:1.7;margin-bottom:8px;">{s}</li>'
+        f'<li style="font-family:Inter,sans-serif;font-size:15px;color:#475569;'
+        f'line-height:1.75;margin-bottom:10px;padding-left:4px;">{s}</li>'
         for s in specific
     )
-    st.markdown(f"""
-    <div class="card" style="height:100%;">
-        <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
-                    color:#1FA3A3;letter-spacing:1.5px;margin-bottom:12px;">SPECIFIC OBJECTIVES</div>
-        <ol style="padding-left:20px;margin:0;">{items}</ol>
+    st.html(f"""
+    <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;
+                padding:28px;height:100%;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+        <div style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
+                    color:#1FA3A3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">
+            Specific Objectives
+        </div>
+        <ol style="padding-left:18px;margin:0;">{items}</ol>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-st.markdown("<br>", unsafe_allow_html=True)
-st.divider()
+st.html("<div style='height:56px;'></div>")
 
 # ── Key Features ──────────────────────────────────────────────────────────────
-st.markdown("""
-<h2 style="font-family:'Poppins',sans-serif;font-size:30px;font-weight:700;
-           color:#0B3C5D;margin-bottom:8px;text-align:center;">Key Features</h2>
-<p style="font-family:'Inter',sans-serif;font-size:16px;color:#6b7280;
-          text-align:center;margin-bottom:36px;">What makes this system stand out</p>
-""", unsafe_allow_html=True)
+st.html("""
+<div style="border-top:1px solid #e2e8f0;padding-top:56px;margin-bottom:40px;">
+    <div style="font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;
+                color:#1FA3A3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">
+        Key Features
+    </div>
+    <h2 style="font-family:'Poppins',sans-serif;font-size:28px;font-weight:700;
+               color:#0B3C5D;letter-spacing:-0.01em;">What makes this system stand out</h2>
+</div>
+""")
 
 features = [
-    ("🔬", "Model Comparison", "Side-by-side comparison of Baseline YOLOv12 and Enhanced YOLOv12 on the same image."),
-    ("🌊", "Underwater Classes", "Detection of Echinus, Holothurian, Scallop, and Starfish in underwater imagery."),
-    ("🛡️", "Noise Robustness", "Improved robustness in noisy underwater conditions via the denoising branch."),
-    ("📊", "Standard Metrics", "Evaluation using Precision, Recall, mAP@50, and mAP@50:95."),
+    ("🔬", "Model Comparison", "Side-by-side comparison of Baseline and Enhanced YOLOv12 on the same input image."),
+    ("🌊", "Underwater Classes", "Trained to detect Echinus, Holothurian, Scallop, and Starfish."),
+    ("🛡️", "Noise Robustness", "Dual-branch design targets noise suppression in degraded underwater imagery."),
+    ("📊", "Standard Metrics", "Evaluated with Precision, Recall, mAP@50, and mAP@50:95."),
 ]
 feat_cols = st.columns(4, gap="medium")
 for col, (icon, title, desc) in zip(feat_cols, features):
-    col.markdown(f"""
-    <div class="card" style="text-align:center;height:100%;">
-        <div style="font-size:32px;margin-bottom:12px;">{icon}</div>
-        <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;
+    col.html(f"""
+    <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;
+                padding:24px;text-align:left;height:100%;
+                box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+        <div style="font-size:28px;margin-bottom:14px;">{icon}</div>
+        <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;
                     color:#0B3C5D;margin-bottom:8px;">{title}</div>
-        <p style="font-family:'Inter',sans-serif;font-size:14px;color:#6b7280;
-                  line-height:1.6;margin:0;">{desc}</p>
+        <p style="font-family:'Inter',sans-serif;font-size:13.5px;color:#64748b;
+                  line-height:1.65;margin:0;">{desc}</p>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-st.markdown("<br>", unsafe_allow_html=True)
-st.divider()
+st.html("<div style='height:56px;'></div>")
 
 # ── Study Highlights ──────────────────────────────────────────────────────────
-st.markdown("""
-<div style="background:#0B3C5D;border-radius:16px;padding:48px;text-align:center;margin-bottom:48px;">
-    <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
-                color:#1FA3A3;letter-spacing:2px;margin-bottom:16px;">STUDY HIGHLIGHTS</div>
-    <p style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:600;
-              color:#ffffff;line-height:1.6;max-width:780px;margin:0 auto 32px;">
-        The Enhanced YOLOv12 model consistently outperformed the baseline in both clean and noisy scenarios.
-        Improvements became more noticeable under degraded conditions, especially in Recall, mAP@50, and mAP@50:95.
+st.html("""
+<div style="background:#0B3C5D;border-radius:16px;padding:56px 64px;
+            margin-bottom:0;border:1px solid rgba(255,255,255,0.05);">
+    <div style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
+                color:#1FA3A3;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">
+        Study Highlights
+    </div>
+    <p style="font-family:'Poppins',sans-serif;font-size:20px;font-weight:500;
+              color:rgba(255,255,255,0.85);line-height:1.65;max-width:700px;margin:0 0 44px;">
+        The Enhanced YOLOv12 model consistently outperformed the baseline in both clean and noisy
+        scenarios — with the most notable gains in Recall, mAP@50, and mAP@50:95 under degraded conditions.
     </p>
-    <div style="display:flex;justify-content:center;gap:48px;flex-wrap:wrap;">
+    <div style="display:flex;gap:56px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.1);
+                padding-top:36px;">
         <div>
-            <div style="font-family:'Poppins',sans-serif;font-size:36px;font-weight:700;color:#1FA3A3;">84.2%</div>
-            <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;margin-top:4px;">Enhanced Precision</div>
+            <div style="font-family:'Poppins',sans-serif;font-size:38px;font-weight:700;
+                        color:#1FA3A3;letter-spacing:-0.02em;">84.2%</div>
+            <div style="font-family:'Inter',sans-serif;font-size:13px;
+                        color:rgba(255,255,255,0.45);margin-top:6px;">Enhanced Precision</div>
         </div>
         <div>
-            <div style="font-family:'Poppins',sans-serif;font-size:36px;font-weight:700;color:#1FA3A3;">82.6%</div>
-            <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;margin-top:4px;">Enhanced mAP@50</div>
+            <div style="font-family:'Poppins',sans-serif;font-size:38px;font-weight:700;
+                        color:#1FA3A3;letter-spacing:-0.02em;">82.6%</div>
+            <div style="font-family:'Inter',sans-serif;font-size:13px;
+                        color:rgba(255,255,255,0.45);margin-top:6px;">Enhanced mAP@50</div>
         </div>
         <div>
-            <div style="font-family:'Poppins',sans-serif;font-size:36px;font-weight:700;color:#1FA3A3;">57.1%</div>
-            <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;margin-top:4px;">Enhanced mAP@50:95</div>
+            <div style="font-family:'Poppins',sans-serif;font-size:38px;font-weight:700;
+                        color:#1FA3A3;letter-spacing:-0.02em;">57.1%</div>
+            <div style="font-family:'Inter',sans-serif;font-size:13px;
+                        color:rgba(255,255,255,0.45);margin-top:6px;">Enhanced mAP@50:95</div>
         </div>
     </div>
 </div>
-""", unsafe_allow_html=True)
+""")
 
 render_footer()

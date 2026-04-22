@@ -17,21 +17,21 @@ st.set_page_config(
 
 inject_branding()
 
-# Pin Run Detection button to top-right of navbar on this page only
-st.markdown("""
+# Pin Run Detection button to navbar top-right on this page only
+st.html("""
 <style>
 .stButton > button {
     position: fixed !important;
-    top: 12px !important;
-    right: calc((100vw - min(1400px,100vw)) / 2 + 5rem) !important;
+    top: 14px !important;
+    right: calc((100vw - 1280px) / 2 + 6rem) !important;
     z-index: 10000 !important;
     width: auto !important;
     min-width: 0 !important;
 }
-@media (max-width: 1200px) { .stButton > button { right: 2rem !important; } }
-@media (max-width: 768px)  { .stButton > button { right: 1rem !important; } }
+@media (max-width: 1400px) { .stButton > button { right: 3rem !important; } }
+@media (max-width: 768px)  { .stButton > button { right: 1.5rem !important; } }
 </style>
-""", unsafe_allow_html=True)
+""")
 
 render_navbar("Run_Simulation")
 
@@ -97,19 +97,19 @@ if proposed_metrics["precision"] == 0.0:
     proposed_metrics = {"precision": 0.8423, "recall": 0.72726, "mAP50": 0.82561, "mAP50-95": 0.57133}
 
 # ── Page header ────────────────────────────────────────────────────────────────
-st.markdown("""
-<div style="padding: 48px 0 24px;">
-    <p style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
-              color:#1FA3A3;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">
+st.html("""
+<div style="padding:56px 0 28px;">
+    <div style="font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;
+                color:#1FA3A3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">
         Detection System
-    </p>
+    </div>
     <h1 style="font-family:'Poppins',sans-serif;font-size:38px;font-weight:700;
-               color:#0B3C5D;margin-bottom:12px;">Run Simulation</h1>
-    <p style="font-family:'Inter',sans-serif;font-size:16px;color:#6b7280;max-width:600px;">
-        Upload an underwater image to compare detection results between the Baseline and Enhanced YOLOv12 models.
+               color:#0B3C5D;margin-bottom:12px;letter-spacing:-0.02em;">Run Simulation</h1>
+    <p style="font-family:'Inter',sans-serif;font-size:16px;color:#64748b;max-width:580px;line-height:1.7;">
+        Upload an underwater image to compare Baseline and Enhanced YOLOv12 detection results side by side.
     </p>
 </div>
-""", unsafe_allow_html=True)
+""")
 
 # ── Upload ─────────────────────────────────────────────────────────────────────
 preview_slot = st.empty()
@@ -124,32 +124,33 @@ if uploaded_file:
     image.save(buf, format="PNG")
     b64 = base64.b64encode(buf.getvalue()).decode()
 
-    preview_slot.markdown(f"""
+    preview_slot.html(f"""
     <style>
     [data-testid="stFileUploaderDropzone"] {{
-        padding: 10px 20px !important; min-height: 0 !important; border-radius: 10px !important;
+        padding: 10px 20px !important; min-height: 0 !important; border-radius: 8px !important;
     }}
     [data-testid="stFileUploaderDropzoneInstructions"] > div::before {{ display: none !important; }}
     [data-testid="stFileUploaderDropzoneInstructions"] > div::after {{
         content: "Click to upload a different image" !important;
-        font-size: 13px !important; color: #6b7280 !important; font-weight: 400 !important;
+        font-size: 13px !important; color: #94a3b8 !important; font-weight: 400 !important;
     }}
     [data-testid="stFileUploaderDropzoneInstructions"]::after {{ display: none !important; }}
     [data-testid="stFileUploaderDropzone"] button {{ display: none !important; }}
     [data-testid="stFileUploaderFile"] {{ display: none !important; }}
     </style>
-    <div style="border:2px dashed #1FA3A3;border-radius:16px;background:white;
+    <div style="border:1.5px dashed #cbd5e1;border-radius:12px;background:#fafafa;
                 padding:24px;text-align:center;margin-bottom:8px;">
         <img src="data:image/png;base64,{b64}"
-             style="max-width:100%;max-height:420px;border-radius:10px;object-fit:contain;" />
-        <p style="font-size:13px;color:#6b7280;margin-top:10px;margin-bottom:0;">{uploaded_file.name}</p>
+             style="max-width:100%;max-height:400px;border-radius:8px;object-fit:contain;" />
+        <p style="font-size:12.5px;color:#94a3b8;margin-top:10px;margin-bottom:0;
+                  font-family:'Inter',sans-serif;">{uploaded_file.name}</p>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
 # ── Detection ──────────────────────────────────────────────────────────────────
 if uploaded_file and run_detection:
     status_slot = st.empty()
-    status_slot.info("Running detection...")
+    status_slot.info("Running detection on both models...")
 
     start = time.time()
     baseline_result = baseline_model(img_array)[0]
@@ -195,7 +196,7 @@ if uploaded_file and run_detection:
     col1, col2 = st.columns(2, gap="large")
 
     with col1:
-        st.markdown('<div class="card"><div class="card-title">Baseline Model</div></div>', unsafe_allow_html=True)
+        st.html('<div class="card"><div class="card-title">Baseline Model</div></div>')
         st.image(baseline_img, use_container_width=True)
         if baseline_count == 0:
             if proposed_count == 0:
@@ -203,22 +204,22 @@ if uploaded_file and run_detection:
             else:
                 st.error("No class detected")
         else:
-            st.markdown(f'<div class="metric-box">Highest Detection Accuracy<br><b>{baseline_accuracy:.1f}%</b></div>', unsafe_allow_html=True)
-            st.markdown('<p style="font-size:14px;color:#6b7280;margin-top:16px;margin-bottom:8px;">Classification Results</p>', unsafe_allow_html=True)
+            st.html(f'<div class="metric-box">Highest Detection Accuracy<br><b>{baseline_accuracy:.1f}%</b></div>')
+            st.html('<p style="font-size:13px;color:#94a3b8;margin:12px 0 8px;font-family:Inter,sans-serif;font-weight:500;">Classification Results</p>')
             with st.expander("See More"):
                 for cls, conf in baseline_detections:
                     st.write(f"{cls} — {conf*100:.1f}%")
             with st.expander("Evaluation Metrics"):
                 m1, m2 = st.columns(2)
                 with m1:
-                    st.markdown(f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+                    st.html(f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"]*100:.2f}%</b><br><span style="font-size:11px;color:#94a3b8;">(baseline)</span></div>')
+                    st.html(f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:11px;color:#94a3b8;">(baseline)</span></div>')
                 with m2:
-                    st.markdown(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
+                    st.html(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.2f}%</b><br><span style="font-size:11px;color:#94a3b8;">(baseline)</span></div>')
+                    st.html(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:11px;color:#94a3b8;">(baseline)</span></div>')
 
     with col2:
-        st.markdown('<div class="card proposed"><div class="card-title">Enhanced Model</div></div>', unsafe_allow_html=True)
+        st.html('<div class="card proposed"><div class="card-title">Enhanced Model</div></div>')
         st.image(proposed_img, use_container_width=True)
         if proposed_count == 0:
             if baseline_count == 0:
@@ -226,22 +227,27 @@ if uploaded_file and run_detection:
             else:
                 st.error("No class detected")
         else:
-            st.markdown(f'<div class="metric-box">Highest Detection Accuracy<br><b>{proposed_accuracy:.1f}%</b></div>', unsafe_allow_html=True)
-            st.markdown('<p style="font-size:14px;color:#6b7280;margin-top:16px;margin-bottom:8px;">Classification Results</p>', unsafe_allow_html=True)
+            st.html(f'<div class="metric-box">Highest Detection Accuracy<br><b>{proposed_accuracy:.1f}%</b></div>')
+            st.html('<p style="font-size:13px;color:#94a3b8;margin:12px 0 8px;font-family:Inter,sans-serif;font-weight:500;">Classification Results</p>')
             with st.expander("See More"):
                 for cls, conf in proposed_detections:
                     st.write(f"{cls} — {conf*100:.1f}%")
             with st.expander("Evaluation Metrics"):
                 m1, m2 = st.columns(2)
                 with m1:
-                    st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:{dc(precision_improvement)}">{ds(precision_improvement)}{precision_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:{dc(map50_improvement)}">{ds(map50_improvement)}{map50_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                    st.html(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.2f}%</b><br><span style="font-size:11px;color:{dc(precision_improvement)};">{ds(precision_improvement)}{precision_improvement:.2f}%</span></div>')
+                    st.html(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:11px;color:{dc(map50_improvement)};">{ds(map50_improvement)}{map50_improvement:.2f}%</span></div>')
                 with m2:
-                    st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:{dc(recall_improvement)}">{ds(recall_improvement)}{recall_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:{dc(map95_improvement)}">{ds(map95_improvement)}{map95_improvement:.2f}%</span></div>', unsafe_allow_html=True)
+                    st.html(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.2f}%</b><br><span style="font-size:11px;color:{dc(recall_improvement)};">{ds(recall_improvement)}{recall_improvement:.2f}%</span></div>')
+                    st.html(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:11px;color:{dc(map95_improvement)};">{ds(map95_improvement)}{map95_improvement:.2f}%</span></div>')
 
-    st.divider()
-    st.subheader("Model Comparison")
+    st.html("<div style='height:32px;'></div>")
+    st.html("""
+    <div style="border-top:1px solid #e2e8f0;padding-top:32px;margin-bottom:8px;">
+        <h2 style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;
+                   color:#0B3C5D;letter-spacing:-0.01em;">Model Comparison</h2>
+    </div>
+    """)
     comp_col1, comp_col2, comp_col3 = st.columns(3)
     with comp_col1:
         st.metric("Average Accuracy Improvement", f"{proposed_accuracy_avg:.2f}%", f"{proposed_accuracy_avg - baseline_accuracy_avg:.2f}%")
