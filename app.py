@@ -15,7 +15,10 @@ if "history" not in st.session_state:
 
 if "show_history" not in st.session_state:
     st.session_state.show_history = False
-    
+
+if "results" not in st.session_state:
+    st.session_state.results = None
+
 # =========================
 # PAGE CONFIG
 # =========================
@@ -399,6 +402,15 @@ div[data-testid="stButton"] button:hover {
     color: white !important;
     border: none !important;
 }
+            
+/* Remove red focus/active styles */
+div[data-testid="stButton"] button:focus,
+div[data-testid="stButton"] button:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+    color: white !important;
+}
 </style>
 """, unsafe_allow_html=True)
 # =========================
@@ -507,24 +519,26 @@ st.markdown('<div class="navbar">Underwater Object Detection Prototype</div>', u
 # =========================
 # TOGGLE BUTTON (History ↔ Back)
 # =========================
-history_col1, history_col2 = st.columns([8, 1])
+history_col1, history_col2, history_col3 = st.columns([1, 8, 1])
 
-with history_col2:
+with history_col1:
     if st.session_state.show_history:
         if st.button("← Back", key="back_btn"):
             st.session_state.show_history = False
             st.rerun()
-    else:
+
+with history_col3:
+    if not st.session_state.show_history:
         if st.button("History", key="history_btn"):
             st.session_state.show_history = True
             st.rerun()
 
 if st.session_state.show_history:
 
-    col1, col2 = st.columns([8,1])
-
-    with col1:
-        st.title("Detection History")
+    st.markdown(
+        "<h2 style='text-align: center; margin-bottom: 20px;'>Detection History</h2>",
+        unsafe_allow_html=True
+    )
 
     if not st.session_state.history:
         st.markdown(
@@ -635,16 +649,12 @@ if uploaded_file and run_detection:
     # =========================
     # RUN BASELINE
     # =========================
-    start = time.time()
     baseline_result = baseline_model(img_array)[0]
-    baseline_time = time.time() - start
 
     # =========================
     # RUN PROPOSED
     # =========================
-    start = time.time()
     proposed_result = proposed_model(img_array)[0]
-    proposed_time = time.time() - start
 
     # Hide the running status once both model results are ready.
     status_slot.empty()
