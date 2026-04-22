@@ -1,732 +1,211 @@
 import streamlit as st
-from ultralytics import YOLO
-from PIL import Image
-import numpy as np
-import time
-import base64
-from io import BytesIO
-import torch
+from utils import inject_branding, render_navbar, render_footer
 
-# =========================
-# PAGE CONFIG
-# =========================
 st.set_page_config(
     page_title="Underwater Object Detection",
-    layout="wide"
+    page_icon="🌊",
+    layout="wide",
+    initial_sidebar_state="collapsed",
 )
-# =========================
-# GLOBAL UI STYLING (FIGMA-LIKE)
-# =========================
+
+inject_branding()
+render_navbar("Home")
+
+# ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown("""
-<style>
-/* Page background */
-.stApp {
-    background-color: #f6f8fb;
-}
-
-/* Hide Streamlit default header */
-[data-testid="stHeader"] {
-    display: none !important;
-}
-
-/* Sticky white navbar */
-.navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 9999;
-    background: #ffffff;
-    padding-left: calc((100vw - min(1400px, 100vw)) / 2 + 5rem);
-    padding-right: calc((100vw - min(1400px, 100vw)) / 2 + 5rem);
-    height: 60px;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 16px;
-    font-weight: 600;
-    color: #111827;
-}
-
-/* Offset page content below fixed navbar */
-[data-testid="stAppViewContainer"] > section:first-child {
-    padding-top: 72px !important;
-}
-
-/* Add horizontal margin to center the content */
-[data-testid="stMainBlockContainer"],
-.main .block-container,
-section.main > div.block-container {
-    padding-left: 5rem !important;
-    padding-right: 5rem !important;
-    max-width: 1400px !important;
-    margin: 0 auto !important;
-}
-
-@media (max-width: 1200px) {
-    .navbar {
-        padding: 0 2rem;
-    }
-
-    [data-testid="stMainBlockContainer"],
-    .main .block-container,
-    section.main > div.block-container {
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
-        max-width: 100% !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .navbar {
-        padding: 0 1rem;
-    }
-
-    [data-testid="stMainBlockContainer"],
-    .main .block-container,
-    section.main > div.block-container {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-    }
-}
-
-/* Run Detection button - fixed top right inside navbar */
-.stButton > button {
-    position: fixed !important;
-    top: 10px !important;
-    right: calc((100vw - min(1400px, 100vw)) / 2 + 5rem) !important;
-    z-index: 10000 !important;
-    background: #374151 !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 8px 20px !important;
-    font-weight: 500 !important;
-    font-size: 14px !important;
-    width: auto !important;
-    min-width: 0 !important;
-    cursor: pointer !important;
-}
-
-.stButton > button:hover:not(:disabled) {
-    background: #1e40af !important;
-}
-
-.stButton > button:not(:disabled) {
-    background: #1d4ed8 !important;
-}
-
-.stButton > button:disabled {
-    background: #e5e7eb !important;
-    color: #9ca3af !important;
-    cursor: not-allowed !important;
-}
-
-@media (max-width: 1200px) {
-    .stButton > button {
-        right: 2rem !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .stButton > button {
-        right: 1rem !important;
-    }
-}
-
-/* Upload box */
-.upload-box {
-    border: 2px dashed #cbd5e1;
-    border-radius: 14px;
-    padding: 60px;
-    text-align: center;
-    background: white;
-}
-
-.upload-text {
-    font-size: 16px;
-    color: #1f2937;
-    margin-bottom: 8px;
-}
-
-.upload-subtext {
-    font-size: 14px;
-    color: #9ca3af;
-}
-
-/* Card panel */
-.card {
-    background: white;
-    border-radius: 14px;
-    padding: 20px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-
-/* Card header */
-.card-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 14px;
-    color: #1f2937;
-}
-
-/* Small metric box */
-.metric-box {
-    background: #f9fafb;
-    border-radius: 10px;
-    padding: 14px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 10px;
-    color: #1f2937;
-}
-
-.metric-box b {
-    color: #1f2937;
-}
-
-/* Proposed highlight */
-.proposed {
-    border: 2px solid #2563eb;
-}
-
-/* See more button mimic */
-.dropdown {
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
-}
-
-/* Target specific text elements that need dark color */
-.stMarkdown, .stMarkdown p, .stMarkdown div {
-    color: #1f2937;
-}
-
-/* Headings */
-h1, h2, h3 {
-    color: #1f2937;
-}
-
-/* Info/warning boxes */
-.stAlert {
-    color: #1f2937;
-}
-
-/* Expander - more visible border and dark text */
-[data-testid="stExpander"] {
-    border: 1px solid #d1d5db !important;
-    border-radius: 10px !important;
-    background: #f9fafb !important;
-    margin-bottom: 8px !important;
-}
-
-[data-testid="stExpander"] summary {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #111827 !important;
-    padding: 10px 14px !important;
-    background: #f9fafb !important;
-    border-radius: 10px !important;
-}
-
-[data-testid="stExpander"] summary:hover {
-    background: #f3f4f6 !important;
-    border-radius: 10px !important;
-}
-
-[data-testid="stExpander"] summary svg {
-    color: #111827 !important;
-    fill: #111827 !important;
-}
-
-/* Keep background color when expander is open */
-[data-testid="stExpander"][open] {
-    background: #f9fafb !important;
-}
-
-[data-testid="stExpander"][open] summary {
-    background: #f9fafb !important;
-    border-radius: 10px 10px 0 0 !important;
-    color: #111827 !important;
-}
-
-[data-testid="stExpander"] > div[data-testid="stExpanderDetails"] {
-    border-top: 1px solid #e5e7eb !important;
-    padding: 12px 14px !important;
-    color: #111827 !important;
-    background: #f9fafb !important;
-    border-radius: 0 0 10px 10px !important;
-}
-
-/* Ensure all children inside expander keep the right background */
-[data-testid="stExpander"] * {
-    background-color: transparent !important;
-}
-
-[data-testid="stExpander"] .metric-box {
-    background: #ffffff !important;
-}
-
-/* Model Comparison section - all text dark */
-[data-testid="stMetric"] label,
-[data-testid="stMetric"] [data-testid="stMetricValue"],
-[data-testid="stMetric"] [data-testid="stMetricDelta"] {
-    color: #111827 !important;
-}
-
-[data-testid="stMetricValue"] > div {
-    color: #111827 !important;
-}
-
-h2, h3 {
-    color: #111827 !important;
-}
-
-/* Style the file uploader to look like the upload box */
-[data-testid="stFileUploader"] {
-    width: 100%;
-}
-
-[data-testid="stFileUploaderDropzone"] {
-    border: 2px dashed #d1d5db !important;
-    border-radius: 16px !important;
-    padding: 180px 40px 190px 40px !important;
-    text-align: center !important;
-    background: white !important;
-    cursor: pointer !important;
-    transition: border-color 0.2s, background 0.2s !important;
-    min-height: 220px !important;
-}
-
-[data-testid="stFileUploaderDropzone"]:hover {
-    border-color: #2563eb !important;
-    background: #f5f8ff !important;
-}
-
-/* Center the instructions block */
-[data-testid="stFileUploaderDropzoneInstructions"] {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-}
-
-[data-testid="stFileUploaderDropzoneInstructions"] > div {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    width: 100% !important;
-}
-
-/* Hide the default SVG icon */
-[data-testid="stFileUploaderDropzoneInstructions"] svg {
-    display: none !important;
-}
-
-/* Hide default span and small text */
-[data-testid="stFileUploaderDropzoneInstructions"] span,
-[data-testid="stFileUploaderDropzoneInstructions"] small {
-    display: none !important;
-}
-
-/* Inject the upload icon as a blue circle using ::before */
-[data-testid="stFileUploaderDropzoneInstructions"] > div::before {
-    content: "";
-    display: block;
-    width: 60px;
-    height: 60px;
-    background-color: #dbeafe;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 28px 28px;
-    border-radius: 50%;
-    margin: 0 auto 16px auto;
-}
-
-/* Inject "Click to upload image" text */
-[data-testid="stFileUploaderDropzoneInstructions"] > div::after {
-    content: "Click to upload image";
-    display: block;
-    font-size: 15px;
-    font-weight: 500;
-    color: #1f2937;
-    margin-bottom: 4px;
-}
-
-/* Inject "PNG, JPG up to 10MB" subtext below */
-[data-testid="stFileUploaderDropzoneInstructions"]::after {
-    content: "PNG, JPG up to 10MB";
-    display: block;
-    font-size: 13px;
-    color: #9ca3af;
-    margin-top: 4px;
-    text-align: center;
-}
-
-/* Hide the Browse files button */
-[data-testid="stFileUploaderDropzone"] button {
-    display: none !important;
-}
-
-/* Uploaded file name and size text - make dark/visible */
-[data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"],
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] span,
-[data-testid="uploadedFileName"],
-[data-testid="stFileUploader"] .uploadedFileName {
-    color: #111827 !important;
-}
-
-[data-testid="stFileUploader"] > div > div > div {
-    color: #111827 !important;
-}
-</style>
+<div style="padding: 80px 0 60px; text-align: center;">
+    <p style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+              color:#1FA3A3;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">
+        University of Mindanao · Thesis Research
+    </p>
+    <h1 style="font-family:'Poppins',sans-serif;font-size:44px;font-weight:700;
+               color:#0B3C5D;line-height:1.25;margin-bottom:20px;">
+        An Enhanced YOLOv12 Architecture<br>with Dual-Branch Network for<br>Underwater Object Detection
+    </h1>
+    <p style="font-family:'Inter',sans-serif;font-size:17px;color:#4b6a7d;
+              max-width:720px;margin:0 auto 40px;line-height:1.75;">
+        Improving underwater object detection by enhancing YOLOv12 with a Dual-Branch Input Stem
+        that preserves visual features while reducing the effects of underwater noise and image degradation.
+    </p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="/Run_Simulation" style="
+            display:inline-block;background:#0B3C5D;color:#ffffff;
+            text-decoration:none;font-family:'Inter',sans-serif;
+            font-weight:600;font-size:15px;padding:14px 32px;border-radius:8px;">
+            Run Simulation
+        </a>
+        <a href="/Instructions" style="
+            display:inline-block;background:transparent;color:#0B3C5D;
+            border:2px solid #0B3C5D;text-decoration:none;
+            font-family:'Inter',sans-serif;font-weight:600;
+            font-size:15px;padding:12px 30px;border-radius:8px;">
+            View Instructions
+        </a>
+    </div>
+</div>
 """, unsafe_allow_html=True)
-# =========================
-# LOAD MODELS (CACHE)
-# =========================
-@st.cache_resource
-def load_models():
-    baseline = YOLO("models/baseline_best.pt")
-    proposed = YOLO("models/proposed_best.pt")
 
-    def ensure_branch_weights(yolo_model):
-        """Backfill missing branch_weights for custom branch modules in older checkpoints."""
-        for module in yolo_model.model.modules():
-            if hasattr(module, "branch_weights"):
-                pass
+# ── Class badges ──────────────────────────────────────────────────────────────
+classes = ["Echinus", "Holothurian", "Scallop", "Starfish"]
+badges = "".join(
+    f'<span style="background:#E8F1F2;color:#0B3C5D;border:1px solid #CFE3E6;'
+    f'border-radius:20px;padding:6px 18px;font-family:Inter,sans-serif;'
+    f'font-size:14px;font-weight:500;">{c}</span>'
+    for c in classes
+)
+st.markdown(
+    f'<div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:64px;">{badges}</div>',
+    unsafe_allow_html=True,
+)
 
-            try:
-                num_branches = None
+st.divider()
 
-                if hasattr(module, "branches"):
-                    num_branches = len(module.branches)
-                elif hasattr(module, "num_branches"):
-                    num_branches = int(module.num_branches)
-                elif hasattr(module, "branch_convs"):
-                    num_branches = len(module.branch_convs)
-                elif module.__class__.__name__ == "AdaptiveFeatureFusion":
-                    # This fusion block combines 2 branches (s, d).
-                    num_branches = 2
-
-                if num_branches and num_branches > 0:
-                    module.register_parameter(
-                        "branch_weights",
-                        torch.nn.Parameter(torch.ones(num_branches, dtype=torch.float32)),
-                    )
-            except Exception:
-                # Ignore modules that are not compatible with this fallback.
-                pass
-
-            # Compatibility shim for older AdaptiveFeatureFusion checkpoints.
-            if module.__class__.__name__ == "AdaptiveFeatureFusion":
-                if not hasattr(module, "conv_align"):
-                    module.add_module("conv_align", torch.nn.Identity())
-                if not hasattr(module, "ca"):
-                    module.add_module("ca", torch.nn.Identity())
-
-    ensure_branch_weights(baseline)
-    ensure_branch_weights(proposed)
-    return baseline, proposed
-
-baseline_model, proposed_model = load_models()
-
-# =========================
-# MODEL METRICS (FROM VALIDATION)
-# =========================
-def get_model_metrics(model):
-    """Extract validation metrics from model checkpoint if available"""
-    metrics = {
-        'precision': 0.0,
-        'recall': 0.0,
-        'mAP50': 0.0,
-        'mAP50-95': 0.0
-    }
-    
-    try:
-        # Try to get metrics from model checkpoint
-        ckpt = model.ckpt
-        if ckpt and 'metrics' in ckpt:
-            # Common keys in YOLO checkpoints
-            if hasattr(ckpt['metrics'], 'box'):
-                metrics['precision'] = float(ckpt['metrics'].box.p) if hasattr(ckpt['metrics'].box, 'p') else 0.0
-                metrics['recall'] = float(ckpt['metrics'].box.r) if hasattr(ckpt['metrics'].box, 'r') else 0.0
-                metrics['mAP50'] = float(ckpt['metrics'].box.map50) if hasattr(ckpt['metrics'].box, 'map50') else 0.0
-                metrics['mAP50-95'] = float(ckpt['metrics'].box.map) if hasattr(ckpt['metrics'].box, 'map') else 0.0
-    except:
-        pass
-    
-    return metrics
-
-# Try to load metrics from models
-baseline_metrics = get_model_metrics(baseline_model)
-proposed_metrics = get_model_metrics(proposed_model)
-
-# If metrics are not available in checkpoint, set them manually here
-# You can update these values with your actual validation results
-if baseline_metrics['precision'] == 0.0:
-    baseline_metrics = {
-        'precision': 0.8205,
-        'recall': 0.7260,
-        'mAP50': 0.8137,
-        'mAP50-95': 0.5639
-    }
-
-if proposed_metrics['precision'] == 0.0:
-    proposed_metrics = {
-        'precision': 0.8423,
-        'recall': 0.72726,
-        'mAP50': 0.82561,
-        'mAP50-95': 0.57133    
-        }
-
-# =========================
-# STICKY NAVBAR (always visible)
-# =========================
-st.markdown('<div class="navbar">Underwater Object Detection Prototype</div>', unsafe_allow_html=True)
-
-# =========================
-# IMAGE UPLOAD
-# =========================
-preview_slot = st.empty()
-
-uploaded_file = st.file_uploader("Upload Image", type=["jpg","jpeg","png"], label_visibility="collapsed")
-
-# Run Detection button always rendered (CSS pins it to navbar top-right)
-# Disabled until a file is uploaded
-run_detection = st.button("Run Detection", disabled=not uploaded_file)
-
-# =========================
-# IF IMAGE UPLOADED
-# =========================
-if uploaded_file:
-
-    image = Image.open(uploaded_file).convert("RGB")
-    img_array = np.array(image)
-
-    # Encode image as base64 for inline HTML preview
-    buf = BytesIO()
-    image.save(buf, format="PNG")
-    b64 = base64.b64encode(buf.getvalue()).decode()
-
-    # Show preview ABOVE the file uploader (in the reserved slot)
-    # Make the dropzone compact so the user can still click it to replace the image
-    preview_slot.markdown(f"""
-    <style>
-    [data-testid="stFileUploaderDropzone"] {{
-        padding: 10px 20px !important;
-        min-height: 0 !important;
-        border-radius: 10px !important;
-    }}
-    [data-testid="stFileUploaderDropzoneInstructions"] > div::before {{
-        display: none !important;
-    }}
-    [data-testid="stFileUploaderDropzoneInstructions"] > div::after {{
-        content: "Click to upload a different image" !important;
-        font-size: 13px !important;
-        color: #6b7280 !important;
-        font-weight: 400 !important;
-    }}
-    [data-testid="stFileUploaderDropzoneInstructions"]::after {{
-        display: none !important;
-    }}
-    [data-testid="stFileUploaderDropzone"] button {{
-        display: none !important;
-    }}
-    [data-testid="stFileUploaderFile"] {{
-        display: none !important;
-    }}
-    </style>
-    <div style="border: 2px dashed #2563eb; border-radius: 16px; background: white; padding: 24px; text-align: center; margin-bottom: 8px;">
-        <img src="data:image/png;base64,{b64}" style="max-width: 100%; max-height: 420px; border-radius: 10px; object-fit: contain;" />
-        <p style="font-size: 13px; color: #6b7280; margin-top: 10px; margin-bottom: 0;">{uploaded_file.name}</p>
+# ── About the Study ───────────────────────────────────────────────────────────
+col_txt, col_card = st.columns([3, 2], gap="large")
+with col_txt:
+    st.markdown("""
+    <h2 style="font-family:'Poppins',sans-serif;font-size:30px;font-weight:700;
+               color:#0B3C5D;margin-bottom:16px;">About the Study</h2>
+    <p style="font-family:'Inter',sans-serif;font-size:16px;color:#374151;line-height:1.75;margin-bottom:16px;">
+        Underwater images often suffer from blur, color distortion, poor visibility, and environmental noise.
+        These challenges make object detection difficult and reduce model performance.
+    </p>
+    <p style="font-family:'Inter',sans-serif;font-size:16px;color:#374151;line-height:1.75;margin-bottom:24px;">
+        This study addresses that problem by improving YOLOv12 through a dual-branch architecture composed of
+        a <strong>standard branch</strong> for structural feature extraction, a <strong>denoising branch</strong>
+        for noise suppression, and <strong>adaptive feature fusion</strong> to combine both outputs effectively.
+    </p>
+    <a href="#" style="
+        display:inline-flex;align-items:center;gap:8px;
+        background:#1FA3A3;color:#ffffff;text-decoration:none;
+        font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
+        padding:12px 24px;border-radius:8px;">
+        📄 View Thesis Document
+    </a>
+    """, unsafe_allow_html=True)
+with col_card:
+    st.markdown("""
+    <div style="background:#0B3C5D;border-radius:16px;padding:40px 32px;color:#ffffff;
+                display:flex;flex-direction:column;justify-content:center;min-height:300px;">
+        <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
+                    color:#1FA3A3;letter-spacing:2px;margin-bottom:20px;">DUAL-BRANCH ARCHITECTURE</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="background:rgba(31,163,163,0.15);border-left:3px solid #1FA3A3;padding:12px 16px;border-radius:4px;">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">Standard Branch</div>
+                <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;">Structural feature extraction</div>
+            </div>
+            <div style="background:rgba(31,163,163,0.15);border-left:3px solid #1FA3A3;padding:12px 16px;border-radius:4px;">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">Denoising Branch</div>
+                <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;">Noise suppression & correction</div>
+            </div>
+            <div style="background:rgba(31,163,163,0.25);border-left:3px solid #ffffff;padding:12px 16px;border-radius:4px;">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">Adaptive Feature Fusion</div>
+                <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;">Combined output for final detection</div>
+            </div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-# =========================
-# RUN DETECTION ON BUTTON CLICK
-# =========================
-if uploaded_file and run_detection:
+st.markdown("<br>", unsafe_allow_html=True)
+st.divider()
 
-    status_slot = st.empty()
-    status_slot.info("Running detection...")
+# ── Objectives ────────────────────────────────────────────────────────────────
+st.markdown("""
+<h2 style="font-family:'Poppins',sans-serif;font-size:30px;font-weight:700;
+           color:#0B3C5D;margin-bottom:8px;text-align:center;">Objectives</h2>
+<p style="font-family:'Inter',sans-serif;font-size:16px;color:#6b7280;
+          text-align:center;margin-bottom:36px;">What this research aims to achieve</p>
+""", unsafe_allow_html=True)
 
-    # =========================
-    # RUN BASELINE
-    # =========================
-    start = time.time()
-    baseline_result = baseline_model(img_array)[0]
-    baseline_time = time.time() - start
+obj_col1, obj_col2 = st.columns(2, gap="large")
+with obj_col1:
+    st.markdown("""
+    <div class="card" style="height:100%;">
+        <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
+                    color:#1FA3A3;letter-spacing:1.5px;margin-bottom:12px;">GENERAL OBJECTIVE</div>
+        <p style="font-family:'Inter',sans-serif;font-size:15px;color:#374151;line-height:1.7;margin:0;">
+            To enhance YOLOv12's performance as a detection model for underwater objects by developing an
+            improved architecture that can better handle noise in underwater environments.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+with obj_col2:
+    specific = [
+        "Preprocess underwater datasets for training and evaluation",
+        "Develop a new model by integrating a dual-branch input stem into the baseline YOLOv12",
+        "Compare the baseline and proposed model under varying noise levels",
+        "Evaluate both models using Precision, Recall, mAP@50, and mAP@50:95",
+    ]
+    items = "".join(
+        f'<li style="font-family:Inter,sans-serif;font-size:15px;color:#374151;'
+        f'line-height:1.7;margin-bottom:8px;">{s}</li>'
+        for s in specific
+    )
+    st.markdown(f"""
+    <div class="card" style="height:100%;">
+        <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
+                    color:#1FA3A3;letter-spacing:1.5px;margin-bottom:12px;">SPECIFIC OBJECTIVES</div>
+        <ol style="padding-left:20px;margin:0;">{items}</ol>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # =========================
-    # RUN PROPOSED
-    # =========================
-    start = time.time()
-    proposed_result = proposed_model(img_array)[0]
-    proposed_time = time.time() - start
+st.markdown("<br>", unsafe_allow_html=True)
+st.divider()
 
-    # Hide the running status once both model results are ready.
-    status_slot.empty()
+# ── Key Features ──────────────────────────────────────────────────────────────
+st.markdown("""
+<h2 style="font-family:'Poppins',sans-serif;font-size:30px;font-weight:700;
+           color:#0B3C5D;margin-bottom:8px;text-align:center;">Key Features</h2>
+<p style="font-family:'Inter',sans-serif;font-size:16px;color:#6b7280;
+          text-align:center;margin-bottom:36px;">What makes this system stand out</p>
+""", unsafe_allow_html=True)
 
-    # =========================
-    # DRAW RESULTS
-    # =========================
-    baseline_img = baseline_result.plot()
-    proposed_img = proposed_result.plot()
+features = [
+    ("🔬", "Model Comparison", "Side-by-side comparison of Baseline YOLOv12 and Enhanced YOLOv12 on the same image."),
+    ("🌊", "Underwater Classes", "Detection of Echinus, Holothurian, Scallop, and Starfish in underwater imagery."),
+    ("🛡️", "Noise Robustness", "Improved robustness in noisy underwater conditions via the denoising branch."),
+    ("📊", "Standard Metrics", "Evaluation using Precision, Recall, mAP@50, and mAP@50:95."),
+]
+feat_cols = st.columns(4, gap="medium")
+for col, (icon, title, desc) in zip(feat_cols, features):
+    col.markdown(f"""
+    <div class="card" style="text-align:center;height:100%;">
+        <div style="font-size:32px;margin-bottom:12px;">{icon}</div>
+        <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;
+                    color:#0B3C5D;margin-bottom:8px;">{title}</div>
+        <p style="font-family:'Inter',sans-serif;font-size:14px;color:#6b7280;
+                  line-height:1.6;margin:0;">{desc}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # =========================
-    # EXTRACT ALL RESULTS (PER BOUNDING BOX)
-    # =========================
-    def get_all_detections(result):
-        """Get each detected bounding box with its confidence."""
-        if len(result.boxes.cls) == 0:
-            return []
+st.markdown("<br>", unsafe_allow_html=True)
+st.divider()
 
-        detections = []
-        for i in range(len(result.boxes.cls)):
-            cls_id = int(result.boxes.cls[i])
-            conf = float(result.boxes.conf[i])
-            class_name = result.names[cls_id]
-
-            # Keep each bounding box as an individual classification result.
-            detections.append((class_name, conf))
-
-        # Sort by confidence descending.
-        detections.sort(key=lambda x: x[1], reverse=True)
-        return detections
-
-    baseline_detections = get_all_detections(baseline_result)
-    proposed_detections = get_all_detections(proposed_result)
-
-    # =========================
-    # DETECTION COUNTS
-    # =========================
-    baseline_count = len(baseline_result.boxes.cls)
-    proposed_count = len(proposed_result.boxes.cls)
-    
-    # Detection accuracy is the highest bounding-box confidence.
-    baseline_accuracy = max([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
-    proposed_accuracy = max([conf for _, conf in proposed_detections]) * 100 if proposed_detections else 0
-    
-    # Average accuracy for model comparison
-    baseline_accuracy_avg = np.mean([conf for _, conf in baseline_detections]) * 100 if baseline_detections else 0
-    proposed_accuracy_avg = np.mean([conf for _, conf in proposed_detections]) * 100 if proposed_detections else 0
-    
-    # Calculate metric improvements for delta display
-    precision_improvement = (proposed_metrics["precision"] - baseline_metrics["precision"]) * 100
-    recall_improvement = (proposed_metrics["recall"] - baseline_metrics["recall"]) * 100
-    map50_improvement = (proposed_metrics["mAP50"] - baseline_metrics["mAP50"]) * 100
-    map95_improvement = (proposed_metrics["mAP50-95"] - baseline_metrics["mAP50-95"]) * 100
-
-    # =========================
-    # LAYOUT
-    # =========================
-    col1, col2 = st.columns(2, gap="large")
-
-    # =========================
-    # BASELINE MODEL PANEL (LEFT)
-    # =========================
-    with col1:
-        st.markdown('''
-        <div class="card">
-            <div class="card-title">Baseline Model</div>
+# ── Study Highlights ──────────────────────────────────────────────────────────
+st.markdown("""
+<div style="background:#0B3C5D;border-radius:16px;padding:48px;text-align:center;margin-bottom:48px;">
+    <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
+                color:#1FA3A3;letter-spacing:2px;margin-bottom:16px;">STUDY HIGHLIGHTS</div>
+    <p style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:600;
+              color:#ffffff;line-height:1.6;max-width:780px;margin:0 auto 32px;">
+        The Enhanced YOLOv12 model consistently outperformed the baseline in both clean and noisy scenarios.
+        Improvements became more noticeable under degraded conditions, especially in Recall, mAP@50, and mAP@50:95.
+    </p>
+    <div style="display:flex;justify-content:center;gap:48px;flex-wrap:wrap;">
+        <div>
+            <div style="font-family:'Poppins',sans-serif;font-size:36px;font-weight:700;color:#1FA3A3;">84.2%</div>
+            <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;margin-top:4px;">Enhanced Precision</div>
         </div>
-        ''', unsafe_allow_html=True)
-
-        st.image(baseline_img, use_container_width=True)
-
-        if baseline_count == 0:
-            if proposed_count == 0:
-                st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
-            else:
-                st.error("no class detected")
-        else:
-            st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(baseline_accuracy), unsafe_allow_html=True)
-
-            st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
-            
-            with st.expander("See More"):
-                if baseline_detections:
-                    for cls, conf in baseline_detections:
-                        st.write(f"{cls} — {conf*100:.1f}%")
-
-            with st.expander("Evaluation Metrics"):
-                m1, m2 = st.columns(2)
-                with m1:
-                    st.markdown(f'<div class="metric-box">Precision<br><b>{baseline_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50<br><b>{baseline_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
-                with m2:
-                    st.markdown(f'<div class="metric-box">Recall<br><b>{baseline_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{baseline_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:#9ca3af">(baseline)</span></div>', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # =========================
-    # ENHANCED MODEL PANEL (RIGHT)
-    # =========================
-    with col2:
-        st.markdown('''
-        <div class="card proposed">
-            <div class="card-title">Enhanced Model</div>
+        <div>
+            <div style="font-family:'Poppins',sans-serif;font-size:36px;font-weight:700;color:#1FA3A3;">82.6%</div>
+            <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;margin-top:4px;">Enhanced mAP@50</div>
         </div>
-        ''', unsafe_allow_html=True)
+        <div>
+            <div style="font-family:'Poppins',sans-serif;font-size:36px;font-weight:700;color:#1FA3A3;">57.1%</div>
+            <div style="font-family:'Inter',sans-serif;font-size:13px;color:#94b4c5;margin-top:4px;">Enhanced mAP@50:95</div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-        st.image(proposed_img, use_container_width=True)
-
-        if proposed_count == 0:
-            if baseline_count == 0:
-                st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
-            else:
-                st.error("no class detected")
-        else:
-            st.markdown('<div class="metric-box">Highest Detection Accuracy<br><b>{:.1f}%</b></div>'.format(proposed_accuracy), unsafe_allow_html=True)
-
-            st.markdown('<p style="font-size: 14px; color: #6b7280; margin-top: 16px; margin-bottom: 8px;">Classification Results</p>', unsafe_allow_html=True)
-            
-            with st.expander("See More"):
-                if proposed_detections:
-                    for cls, conf in proposed_detections:
-                        st.write(f"{cls} — {conf*100:.1f}%")
-
-            with st.expander("Evaluation Metrics"):
-                m1, m2 = st.columns(2)
-                with m1:
-                    st.markdown(f'<div class="metric-box">Precision<br><b>{proposed_metrics["precision"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if precision_improvement >= 0 else '#ef4444') + f'">' + ('+' if precision_improvement >= 0 else '') + f'{precision_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50<br><b>{proposed_metrics["mAP50"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map50_improvement >= 0 else '#ef4444') + f'">' + ('+' if map50_improvement >= 0 else '') + f'{map50_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                with m2:
-                    st.markdown(f'<div class="metric-box">Recall<br><b>{proposed_metrics["recall"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if recall_improvement >= 0 else '#ef4444') + f'">' + ('+' if recall_improvement >= 0 else '') + f'{recall_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="metric-box">mAP@50:95<br><b>{proposed_metrics["mAP50-95"]*100:.2f}%</b><br><span style="font-size:12px;color:' + ('#10b981' if map95_improvement >= 0 else '#ef4444') + f'">' + ('+' if map95_improvement >= 0 else '') + f'{map95_improvement:.2f}%</span></div>', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # =========================
-    # COMPARISON
-    # =========================
-    st.divider()
-
-    st.subheader("Model Comparison")
-
-    comp_col1, comp_col2, comp_col3 = st.columns(3)
-    
-    with comp_col1:
-        accuracy_improvement = proposed_accuracy_avg - baseline_accuracy_avg
-        st.metric(
-            label="Average Accuracy Improvement",
-            value=f"{proposed_accuracy_avg:.2f}%",
-            delta=f"{accuracy_improvement:.2f}%"
-        )
-    
-    with comp_col2:
-        st.metric(
-            label="Enhanced Detections",
-            value=proposed_count
-        )
-    
-    with comp_col3:
-        st.metric(
-            label="Baseline Detections",
-            value=baseline_count
-        )
+render_footer()
