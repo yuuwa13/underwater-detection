@@ -559,13 +559,27 @@ if st.session_state.show_history:
 
                 with c1:
                     st.image(item["baseline_img"], caption="Baseline")
-                    st.write(f"Detections: {item['baseline_count']}")
-                    st.write(f"Accuracy: {item['baseline_accuracy']:.1f}%")
+                    st.write(f"Total Detections: {item['baseline_count']}")
+                    st.write(f"Highest Detection Accuracy: {item['baseline_accuracy']:.1f}%")
+
+                    with st.expander("Classification Results"):
+                        if item["baseline_detections"]:
+                            for cls, conf in item["baseline_detections"]:
+                                st.write(f"{cls} — {conf*100:.1f}%")
+                        else:
+                            st.write("No detections")
 
                 with c2:
                     st.image(item["proposed_img"], caption="Enhanced")
-                    st.write(f"Detections: {item['proposed_count']}")
-                    st.write(f"Accuracy: {item['proposed_accuracy']:.1f}%")
+                    st.write(f"Total Detections: {item['proposed_count']}")
+                    st.write(f"Highest Detection Accuracy: {item['proposed_accuracy']:.1f}%")
+
+                    with st.expander("Classification Results"):
+                        if item["proposed_detections"]:
+                            for cls, conf in item["proposed_detections"]:
+                                st.write(f"{cls} — {conf*100:.1f}%")
+                        else:
+                            st.write("No detections")
 
     st.stop()  # 🚨 IMPORTANT: hides upload + detection UI
 # =========================
@@ -719,6 +733,8 @@ if uploaded_file and run_detection:
         "proposed_img": proposed_img,
         "baseline_count": baseline_count,
         "proposed_count": proposed_count,
+        "baseline_detections": baseline_detections,
+        "proposed_detections": proposed_detections,
         "baseline_accuracy": baseline_accuracy,
         "proposed_accuracy": proposed_accuracy,
         "time": time.strftime("%Y-%m-%d %H:%M:%S")
