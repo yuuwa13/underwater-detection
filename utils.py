@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as _components
 
 _BRAND_CSS = """
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -9,6 +10,7 @@ html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #eef2f7 !important;
     color: #0f172a;
+    overflow-x: hidden !important;
 }
 
 /* ── Hide Streamlit chrome ── */
@@ -20,17 +22,25 @@ html, body, .stApp {
 footer                           { display: none !important; }
 
 /* ── Content offset below floating navbar ── */
-[data-testid="stAppViewContainer"] > section:first-child {
-    padding-top: 88px !important;
-}
 [data-testid="stMainBlockContainer"],
 .main .block-container,
 section.main > div.block-container {
+    padding-top: 80px !important;
     padding-left: 2rem !important;
     padding-right: 2rem !important;
     max-width: 1200px !important;
     margin: 0 auto !important;
     padding-bottom: 0 !important;
+}
+section[data-testid="stMain"] {
+    padding-bottom: 0 !important;
+    min-height: unset !important;
+}
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewBlockContainer"],
+[data-testid="stBottomBlockContainer"] {
+    padding-bottom: 0 !important;
+    min-height: unset !important;
 }
 
 /* ── Floating pill navbar wrapper (handles fixed positioning) ── */
@@ -178,27 +188,60 @@ h1, h2, h3 { font-family: 'Poppins', sans-serif !important; color: #0B3C5D !impo
 /* ── Streamlit text ── */
 .stMarkdown, .stMarkdown p { color: #374151; }
 
-/* ── Buttons ── */
+/* ── Buttons: shared base ── */
 .stButton > button {
-    background: #0B3C5D !important;
-    color: #ffffff !important;
-    border: none !important;
     border-radius: 8px !important;
     padding: 10px 22px !important;
     font-family: 'Inter', sans-serif !important;
     font-weight: 500 !important;
     font-size: 14px !important;
     letter-spacing: 0.01em !important;
-    transition: background 0.15s, box-shadow 0.15s !important;
+    transition: background 0.15s, box-shadow 0.15s, color 0.15s !important;
+}
+/* Primary — teal fill */
+[data-testid="baseButton-primary"],
+[data-testid="stBaseButton-primary"],
+.stButton > button[kind="primary"] {
+    background: #1FA3A3 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 1px 4px rgba(31,163,163,0.35) !important;
+}
+[data-testid="baseButton-primary"]:hover:not(:disabled),
+[data-testid="stBaseButton-primary"]:hover:not(:disabled),
+.stButton > button[kind="primary"]:hover:not(:disabled) {
+    background: #17888a !important;
+    box-shadow: 0 4px 14px rgba(31,163,163,0.4) !important;
+}
+/* Secondary — ghost outline */
+[data-testid="baseButton-secondary"],
+[data-testid="stBaseButton-secondary"],
+.stButton > button[kind="secondary"] {
+    background: transparent !important;
+    color: #0B3C5D !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: none !important;
+}
+[data-testid="baseButton-secondary"]:hover:not(:disabled),
+[data-testid="stBaseButton-secondary"]:hover:not(:disabled),
+.stButton > button[kind="secondary"]:hover:not(:disabled) {
+    background: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+    box-shadow: none !important;
+}
+/* Default buttons with no type — navy fill */
+.stButton > button:not([kind]) {
+    background: #0B3C5D !important;
+    color: #ffffff !important;
+    border: none !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
 }
-.stButton > button:hover:not(:disabled) {
+.stButton > button:not([kind]):hover:not(:disabled) {
     background: #1FA3A3 !important;
     box-shadow: 0 4px 12px rgba(31,163,163,0.25) !important;
 }
 .stButton > button:disabled {
-    background: #e2e8f0 !important;
-    color: #94a3b8 !important;
+    opacity: 0.5 !important;
     cursor: not-allowed !important;
     box-shadow: none !important;
 }
@@ -331,13 +374,25 @@ hr { border: none !important; border-top: 1px solid #e2e8f0 !important; margin: 
 
 def inject_branding():
     st.html(_BRAND_CSS)
+    # Target Streamlit's own host elements (must use markdown to reach parent DOM)
+    st.markdown(
+        """<style>
+        section[data-testid="stMain"] {
+            padding-bottom: 0 !important;
+            min-height: unset !important;
+        }
+        [data-testid="stBottom"] { display: none !important; }
+        [data-testid="stAppViewContainer"] { padding-bottom: 0 !important; }
+        </style>""",
+        unsafe_allow_html=True,
+    )
 
 
 def render_navbar(active: str = "Home"):
     pages = [
-        ("Home",           "/",               "Home"),
-        ("Instructions",   "/Instructions",   "Instructions"),
-        ("Contact_Us",     "/Contact_Us",     "Contact Us"),
+        ("Home", "/", "Home"),
+        ("Instructions", "/Instructions", "Instructions"),
+        ("Contact_Us", "/Contact_Us", "Contact Us"),
     ]
     links = "".join(
         f'<a href="{href}" class="nav-link{" active" if key == active else ""}">{label}</a>'
@@ -347,25 +402,25 @@ def render_navbar(active: str = "Home"):
         f'<a href="{href}" class="nav-link{" active" if key == active else ""}">{label}</a>'
         for key, href, label in pages
     )
-    run_sim_active = ' nav-cta-active' if active == "Run_Simulation" else ''
+    run_sim_active = " nav-cta-active" if active == "Run_Simulation" else ""
     st.html(
         f'<div class="navbar-wrap">'
         f'<input type="checkbox" id="nav-toggle" class="nav-toggle">'
         f'<nav class="navbar">'
         f'<a href="/" class="navbar-brand">Underwater Detection</a>'
         f'<div class="navbar-links">'
-        f'{links}'
+        f"{links}"
         f'<a href="/Run_Simulation" class="nav-cta{run_sim_active}">Run Simulation</a>'
-        f'</div>'
+        f"</div>"
         f'<label for="nav-toggle" class="hamburger" aria-label="Toggle navigation">'
-        f'<span></span><span></span><span></span>'
-        f'</label>'
-        f'</nav>'
+        f"<span></span><span></span><span></span>"
+        f"</label>"
+        f"</nav>"
         f'<div class="mobile-menu">'
-        f'{mobile_links}'
+        f"{mobile_links}"
         f'<a href="/Run_Simulation" class="nav-cta{run_sim_active}">Run Simulation</a>'
-        f'</div>'
-        f'</div>'
+        f"</div>"
+        f"</div>"
     )
 
 
@@ -376,7 +431,7 @@ def render_footer():
         text-align:center; padding:48px 6rem;
         font-family:'Inter',sans-serif; font-size:13.5px;
         width:100vw; margin-left:calc(-50vw + 50%);
-        margin-top:5rem;
+        margin-top:5rem; margin-bottom:0; display:block;
     ">
         <div style="font-family:'Poppins',sans-serif;font-weight:600;color:#ffffff;
                     font-size:14px;margin-bottom:10px;letter-spacing:0.01em;">
