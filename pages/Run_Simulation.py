@@ -10,6 +10,20 @@ from ultralytics import YOLO
 
 from utils import inject_branding, render_footer, render_navbar
 
+# =========================
+# HISTORY STATE
+# =========================
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+if "show_history" not in st.session_state:
+    st.session_state.show_history = False
+
+
+if "results" not in st.session_state:
+    st.session_state.results = None
+
+    
 st.set_page_config(
     page_title="Run Simulation · Underwater Detection",
     page_icon="🌊",
@@ -111,6 +125,199 @@ st.html("""
     </p>
 </div>
 """)
+
+# =========================
+# HISTORY BUTTON (TOP RIGHT OF UPLOAD)
+# =========================
+history_col1, history_col2, history_col3 = st.columns([1, 8, 1])
+
+with history_col1:
+    if st.session_state.show_history:
+        if st.button("← Back", key="back_btn"):
+            st.session_state.show_history = False
+            st.rerun()
+
+with history_col3:
+    if not st.session_state.show_history:
+        if st.button("History", key="history_btn"):
+            st.session_state.show_history = True
+            st.rerun()
+
+
+if st.session_state.get("show_history", False):
+
+    # =========================
+    # HEADER
+    # =========================
+    st.markdown(
+        """
+        <div style="text-align:center; margin-top:10px; margin-bottom:25px;">
+            <h2 style="font-family:'Poppins'; color:#0B3C5D; margin-top:8px;">
+                Detection History
+            </h2>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    history = st.session_state.get("history", [])
+
+    if not history:
+        st.markdown(
+            """
+            <div style="text-align:center; padding:60px 0;">
+                <div style="font-size:16px; color:#374151; font-weight:500;">No history yet</div>
+                <div style="font-size:13px; color:#9ca3af; margin-top:6px;">
+                    Run a detection to see results here
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        for i, item in enumerate(history):
+            
+            with st.expander(f"{item['filename']} — {item['time']}"):
+
+                # =========================
+                # IMAGE COMPARISON
+                # =========================
+                c1, c2 = st.columns(2)
+
+                with c1:
+                    st.image(item["baseline_img"], caption="Baseline")
+                    st.write(f"Total Detections: {item['baseline_count']}")
+                    st.write(f"Highest Confidence: {item['baseline_accuracy']:.1f}%")
+
+                with c2:
+                    st.image(item["proposed_img"], caption="Enhanced")
+                    st.write(f"Total Detections: {item['proposed_count']}")
+                    st.write(f"Highest Confidence: {item['proposed_accuracy']:.1f}%")
+
+                # =========================
+                # ADD COMPARISON TABLE (IF AVAILABLE)
+                # =========================
+                if "comparison_table" in item and item["comparison_table"]:
+
+                    rows = ""
+
+                    for r in item["comparison_table"]:
+                        label = r["label"]
+                        cls = label.rsplit(" ", 1)[0].lower()
+
+                        b = f"{r['baseline']:.1f}%" if r["baseline"] is not None else "—"
+                        p = f"{r['enhanced']:.1f}%" if r["enhanced"] is not None else "—"
+
+                        rows += f"""
+                        <tr data-cls="{cls}">
+                            <td>
+                                <span class="cls-dot"></span>{label}
+                            </td>
+                            <td class="col-b">{b}</td>
+                            <td class="col-e">{p}</td>
+                        </tr>
+                        """
+
+                    st.html(f"""
+                    <style>
+                        .hist-table-wrap {{
+                            border-radius: 14px;
+                            overflow: hidden;
+                            border: 1px solid #e2e8f0;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+                            margin-top: 12px;
+                        }}
+
+                        .hist-table-wrap table {{
+                            width: 100%;
+                            border-collapse: collapse;
+                            font-family: Inter, sans-serif;
+                        }}
+
+                        .hist-table-wrap thead tr {{
+                            background: #f8fafc;
+                        }}
+
+                        .hist-table-wrap th {{
+                            padding: 12px 16px;
+                            font-size: 13px;
+                            font-weight: 600;
+                            color: #64748b;
+                            border-bottom: 2px solid #e2e8f0;
+                            text-align: left;
+                        }}
+
+                        .hist-table-wrap th.col-b,
+                        .hist-table-wrap th.col-e {{
+                            text-align: center;
+                        }}
+
+                        .hist-table-wrap th.col-e {{
+                            color: #1FA3A3;
+                        }}
+
+                        .hist-table-wrap td {{
+                            padding: 12px 16px;
+                            font-size: 14px;
+                            border-bottom: 1px solid #f1f5f9;
+                            color: #0f172a;
+                            font-weight: 500;
+                        }}
+
+                        .hist-table-wrap td.col-b,
+                        .hist-table-wrap td.col-e {{
+                            text-align: center;
+                            font-family: Poppins, sans-serif;
+                            font-weight: 600;
+                            color: #0B3C5D;
+                        }}
+
+                        .hist-table-wrap td.col-e {{
+                            color: #1FA3A3;
+                        }}
+
+                        .hist-table-wrap tr:nth-child(even) {{
+                            background: #fafafa;
+                        }}
+
+                        .cls-dot {{
+                            display:inline-block;
+                            width:9px;
+                            height:9px;
+                            border-radius:50%;
+                            background:#1FA3A3;
+                            margin-right:8px;
+                            vertical-align:middle;
+                        }}
+
+                        .hist-title {{
+                            font-family: Poppins;
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: #0B3C5D;
+                            margin-top: 14px;
+                        }}
+                    </style>
+
+                    <div class="hist-title">Per-Object Comparison</div>
+
+                    <div class="hist-table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Detection</th>
+                                    <th class="col-b">Baseline</th>
+                                    <th class="col-e">Enhanced</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rows}
+                            </tbody>
+                        </table>
+                    </div>
+                    """)
+
+    st.stop()
 
 # ── Upload ─────────────────────────────────────────────────────────────────────
 if "reset_upload" not in st.session_state:
@@ -483,6 +690,36 @@ if uploaded_file and run_detection:
         if all_labels
         else ""
     )
+
+    comparison_table = [
+        {
+            "label": lbl,
+            "baseline": (_b_dict.get(lbl) * 100) if _b_dict.get(lbl) is not None else None,
+            "enhanced": (_p_dict.get(lbl) * 100) if _p_dict.get(lbl) is not None else None,
+        }
+        for lbl in all_labels
+    ]
+    # =========================
+    # SAVE TO HISTORY
+    # =========================
+
+    history_entry = {
+        "image": img_array,
+        "filename": uploaded_file.name,
+        "baseline_img": baseline_result.plot(),
+        "proposed_img": proposed_result.plot(),
+        "baseline_count": baseline_count,
+        "proposed_count": proposed_count,
+        "baseline_accuracy": baseline_accuracy,
+        "proposed_accuracy": proposed_accuracy,
+        "time": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "comparison_table": comparison_table  # if you're using it
+    }
+
+    # Keep only last 10 entries
+    st.session_state.history.insert(0, history_entry)
+    st.session_state.history = st.session_state.history[:10]
+
 
     # ── Component height estimate ────────────────────────────────────────────────
     _ih, _iw = img_array.shape[:2]
