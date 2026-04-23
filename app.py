@@ -273,35 +273,35 @@ st.html("""
                 border-top:1px solid rgba(255,255,255,0.1);padding-top:44px;">
         <div style="text-align:center;">
             <div style="font-family:'Poppins',sans-serif;font-size:48px;font-weight:700;
-                        color:#1FA3A3;letter-spacing:-0.03em;">84.2%</div>
+                        color:#1FA3A3;letter-spacing:-0.03em;">84.23%</div>
             <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
                         color:rgba(255,255,255,0.7);margin-top:8px;">Precision</div>
             <div style="font-family:'Inter',sans-serif;font-size:12.5px;
-                        color:rgba(255,255,255,0.3);margin-top:4px;">↑ from 82.1% baseline</div>
+                        color:rgba(255,255,255,0.3);margin-top:4px;">↑ from 82.72% baseline</div>
         </div>
         <div style="text-align:center;">
             <div style="font-family:'Poppins',sans-serif;font-size:48px;font-weight:700;
-                        color:#1FA3A3;letter-spacing:-0.03em;">72.7%</div>
+                        color:#1FA3A3;letter-spacing:-0.03em;">77.26%</div>
             <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
                         color:rgba(255,255,255,0.7);margin-top:8px;">Recall</div>
             <div style="font-family:'Inter',sans-serif;font-size:12.5px;
-                        color:rgba(255,255,255,0.3);margin-top:4px;">↑ from 72.6% baseline</div>
+                        color:rgba(255,255,255,0.3);margin-top:4px;">↑ from 76.67% baseline</div>
         </div>
         <div style="text-align:center;">
             <div style="font-family:'Poppins',sans-serif;font-size:48px;font-weight:700;
-                        color:#1FA3A3;letter-spacing:-0.03em;">82.6%</div>
+                        color:#1FA3A3;letter-spacing:-0.03em;">85.61%</div>
             <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
                         color:rgba(255,255,255,0.7);margin-top:8px;">mAP@50</div>
             <div style="font-family:'Inter',sans-serif;font-size:12.5px;
-                        color:rgba(255,255,255,0.3);margin-top:4px;">↑ from 81.4% baseline</div>
+                        color:rgba(255,255,255,0.3);margin-top:4px;">↑ from 84.21% baseline</div>
         </div>
         <div style="text-align:center;">
             <div style="font-family:'Poppins',sans-serif;font-size:48px;font-weight:700;
-                        color:#1FA3A3;letter-spacing:-0.03em;">57.1%</div>
+                        color:#1FA3A3;letter-spacing:-0.03em;">61.13%</div>
             <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
                         color:rgba(255,255,255,0.7);margin-top:8px;">mAP@50:95</div>
             <div style="font-family:'Inter',sans-serif;font-size:12.5px;
-                        color:rgba(255,255,255,0.3);margin-top:4px;">↑ from 56.4% baseline</div>
+                        color:rgba(255,255,255,0.3);margin-top:4px;">↑ from 60.05% baseline</div>
         </div>
     </div>
 </div>

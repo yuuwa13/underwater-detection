@@ -84,17 +84,17 @@ proposed_metrics = get_model_metrics(proposed_model)
 
 if baseline_metrics["precision"] == 0.0:
     baseline_metrics = {
-        "precision": 0.8205,
-        "recall": 0.7260,
-        "mAP50": 0.8137,
-        "mAP50-95": 0.5639,
+        "precision": 0.8272,
+        "recall": 0.7667,
+        "mAP50": 0.8421,
+        "mAP50-95": 0.6005,
     }
 if proposed_metrics["precision"] == 0.0:
     proposed_metrics = {
         "precision": 0.8423,
-        "recall": 0.72726,
-        "mAP50": 0.82561,
-        "mAP50-95": 0.57133,
+        "recall": 0.7726,
+        "mAP50": 0.8561,
+        "mAP50-95": 0.6113,
     }
 
 # ── Page header ────────────────────────────────────────────────────────────────
@@ -386,7 +386,7 @@ if uploaded_file and run_detection:
         b_bottom = (
             f'<div class="no-detect">{_err_both}</div>'
             if proposed_count == 0
-            else '<div class="no-detect">No class detected</div>'
+            else '<div class="no-detect">No class detected. This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.</div>'
         )
     else:
         _blabel = baseline_labeled[0][0]
@@ -405,7 +405,7 @@ if uploaded_file and run_detection:
         e_bottom = (
             f'<div class="no-detect">{_err_both}</div>'
             if baseline_count == 0
-            else '<div class="no-detect">No class detected</div>'
+            else '<div class="no-detect">No class detected. This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.</div>'
         )
     else:
         _elabel = proposed_labeled[0][0]
