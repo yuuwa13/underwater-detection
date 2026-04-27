@@ -405,7 +405,7 @@ with obj_col2:
     specific = [
         "Preprocess underwater datasets for training and evaluation",
         "Develop a new model by integrating a dual-branch input stem into the baseline YOLOv12",
-        "Compare the baseline and proposed model under varying noise levels",
+        "Compare the baseline and enhanced model under varying noise levels",
         "Evaluate both models using Precision, Recall, mAP@50, and mAP@50:95",
     ]
     items = "".join(
@@ -709,7 +709,7 @@ with info_col:
         <div style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
                     color:#1FA3A3;letter-spacing:2px;margin-bottom:16px;">ABOUT THIS SYSTEM</div>
         <p style="font-family:'Inter',sans-serif;font-size:14px;color:#94b4c5;line-height:1.65;margin:0;">
-            This prototype was developed as part of a thesis study on enhanced underwater object detection
+            This simulation was developed as part of a thesis study on enhanced underwater object detection
             using a dual-branch YOLOv12 architecture. It is intended for academic and research purposes.
         </p>
     </div>
@@ -939,7 +939,7 @@ if uploaded_file and run_detection:
             if proposed_count == 0:
                 st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
             else:
-                st.error("No class detected")
+                st.error("No class detected. This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
         else:
             st.markdown(f'<div class="metric-box">Highest Detection Accuracy<br><b>{baseline_accuracy:.1f}%</b></div>', unsafe_allow_html=True)
             st.markdown('<p style="font-size:14px;color:#6b7280;margin-top:16px;margin-bottom:8px;">Classification Results</p>', unsafe_allow_html=True)
@@ -962,7 +962,7 @@ if uploaded_file and run_detection:
             if baseline_count == 0:
                 st.error("This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
             else:
-                st.error("No class detected")
+                st.error("No class detected. This model can only detect Echinus, Starfish, Scallop, and Holothurian. Please upload a different image.")
         else:
             st.markdown(f'<div class="metric-box">Highest Detection Accuracy<br><b>{proposed_accuracy:.1f}%</b></div>', unsafe_allow_html=True)
             st.markdown('<p style="font-size:14px;color:#6b7280;margin-top:16px;margin-bottom:8px;">Classification Results</p>', unsafe_allow_html=True)

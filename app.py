@@ -37,7 +37,7 @@ st.html("""
         for detecting marine objects under noisy underwater conditions.
     </p>
     <div style="padding:0px 0px 24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <a href="/Run_Simulation" style="
+        <a href="/Run_Simulation" target="_top" style="
             display:inline-block;background:#0B3C5D;color:#ffffff;
             text-decoration:none;font-family:'Inter',sans-serif;
             font-weight:600;font-size:14px;padding:13px 28px;
@@ -45,7 +45,7 @@ st.html("""
             box-shadow:0 1px 3px rgba(11,60,93,0.25);">
             Run Simulation →
         </a>
-        <a href="/Instructions" style="
+        <a href="/Instructions" target="_top" style="
             display:inline-block;background:#ffffff;color:#0B3C5D;
             border:1.5px solid #cbd5e1;text-decoration:none;
             font-family:'Inter',sans-serif;font-weight:500;
@@ -151,57 +151,6 @@ with col_card:
 
 st.html("<div style='height:56px;'></div>")
 
-# ── Objectives ────────────────────────────────────────────────────────────────
-st.html("""
-<div style="border-top:1px solid #e2e8f0;padding-top:64px;margin-bottom:48px;">
-    <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
-                color:#1FA3A3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">
-        Objectives
-    </div>
-    <h2 style="font-family:'Poppins',sans-serif;font-size:36px;font-weight:700;
-               color:#0B3C5D;letter-spacing:-0.02em;">What this research aims to achieve</h2>
-</div>
-""")
-
-obj_col1, obj_col2 = st.columns(2, gap="large")
-with obj_col1:
-    st.html("""
-    <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;
-                padding:40px;height:100%;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-        <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
-                    color:#1FA3A3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px;">
-            General Objective
-        </div>
-        <p style="font-family:'Inter',sans-serif;font-size:17px;color:#475569;line-height:1.8;margin:0;">
-            To enhance YOLOv12's performance as a detection model for underwater objects by developing
-            an improved architecture that can better handle noise in underwater environments.
-        </p>
-    </div>
-    """)
-with obj_col2:
-    specific = [
-        "Preprocess underwater datasets for training and evaluation",
-        "Develop a new model by integrating a dual-branch input stem into the baseline YOLOv12",
-        "Compare the baseline and enhanced model under varying noise levels",
-        "Evaluate both models using Precision, Recall, mAP@50, and mAP@50:95",
-    ]
-    items = "".join(
-        f'<li style="font-family:Inter,sans-serif;font-size:17px;color:#475569;'
-        f'line-height:1.8;margin-bottom:14px;padding-left:4px;">{s}</li>'
-        for s in specific
-    )
-    st.html(f"""
-    <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;
-                padding:40px;height:100%;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-        <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
-                    color:#1FA3A3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px;">
-            Specific Objectives
-        </div>
-        <ol style="padding-left:20px;margin:0;">{items}</ol>
-    </div>
-    """)
-
-st.html("<div style='height:56px;'></div>")
 
 # ── Key Features ──────────────────────────────────────────────────────────────
 st.html("""

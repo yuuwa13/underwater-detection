@@ -395,11 +395,11 @@ def render_navbar(active: str = "Home"):
         ("Contact_Us", "/Contact_Us", "Contact Us"),
     ]
     links = "".join(
-        f'<a href="{href}" class="nav-link{" active" if key == active else ""}">{label}</a>'
+        f'<a href="{href}" target="_top" class="nav-link{" active" if key == active else ""}">{label}</a>'
         for key, href, label in pages
     )
     mobile_links = "".join(
-        f'<a href="{href}" class="nav-link{" active" if key == active else ""}">{label}</a>'
+        f'<a href="{href}" target="_top" class="nav-link{" active" if key == active else ""}">{label}</a>'
         for key, href, label in pages
     )
     run_sim_active = " nav-cta-active" if active == "Run_Simulation" else ""
@@ -407,10 +407,10 @@ def render_navbar(active: str = "Home"):
         f'<div class="navbar-wrap">'
         f'<input type="checkbox" id="nav-toggle" class="nav-toggle">'
         f'<nav class="navbar">'
-        f'<a href="/" class="navbar-brand">Underwater Detection</a>'
+        f'<a href="/" target="_top" class="navbar-brand">Underwater Detection</a>'
         f'<div class="navbar-links">'
         f"{links}"
-        f'<a href="/Run_Simulation" class="nav-cta{run_sim_active}">Run Simulation</a>'
+        f'<a href="/Run_Simulation" target="_top" class="nav-cta{run_sim_active}">Run Simulation</a>'
         f"</div>"
         f'<label for="nav-toggle" class="hamburger" aria-label="Toggle navigation">'
         f"<span></span><span></span><span></span>"
@@ -418,7 +418,7 @@ def render_navbar(active: str = "Home"):
         f"</nav>"
         f'<div class="mobile-menu">'
         f"{mobile_links}"
-        f'<a href="/Run_Simulation" class="nav-cta{run_sim_active}">Run Simulation</a>'
+        f'<a href="/Run_Simulation" target="_top" class="nav-cta{run_sim_active}">Run Simulation</a>'
         f"</div>"
         f"</div>"
     )
