@@ -106,7 +106,7 @@ with col_txt:
             and a <em>denoising branch</em> through adaptive feature fusion to improve
             detection accuracy under degraded conditions.
         </p>
-        <a href="#" style="
+        <a href="https://drive.google.com/file/d/1Nd8MVyu4vRQuoeMJk-IP1iC9vD_0-Lns/view" target="_blank" rel="noopener noreferrer" style="
             display:inline-flex;align-items:center;gap:8px;
             color:#1FA3A3;text-decoration:none;
             font-family:'Inter',sans-serif;font-weight:600;font-size:15px;
